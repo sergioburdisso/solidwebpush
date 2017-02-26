@@ -36,5 +36,5 @@ setup(
     download_url = 'https://github.com/sergioburdisso/solidwebpush/tarball/v%s'%package['__version__'],
     keywords = ['web push notifications', 'notifications', 'web notifications', 'raspberry pi'],
     classifiers = [],
-    install_requires = ['ecdsa <1.0', 'python-jose <2.0', 'http_ece', 'pyelliptic <2.0', 'cryptography <1']
+    install_requires = ['ecdsa <1.0', 'python-jose <2.0', 'http_ece', 'pyelliptic <2.0', 'cryptography >=1.0, <2.0']
 )
