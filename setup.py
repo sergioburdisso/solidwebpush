@@ -8,7 +8,7 @@ from setuptools import setup
 
 name = 'solidwebpush'
 description="""
-This package lets you integrate Web Push Notifications in your application's server.
+This package lets your server to send Web Push Notifications to your clients.
 NOTE: No Web framework are required (e.g. Django, Flask, Pyramid, etc.), because
 it was originally designed to run on a Raspberry Pi with no web server installed,
 only a bare Python program listening on a port for HTTP requests.
@@ -33,7 +33,7 @@ setup(
     author_email = 'sergio.burdisso@gmail.com',
     license = package['__license__'],
     url='https://github.com/sergioburdisso/solidwebpush',
-    download_url = 'https://github.com/sergioburdisso/solidwebpush/tarball/v1.0',#https://github.com/{username}/{module_name}/tarball/{tag}
+    download_url = 'https://github.com/sergioburdisso/solidwebpush/tarball/v%s'%package['__version__'],
     keywords = ['web push notifications', 'notifications', 'web notifications', 'raspberry pi'],
     classifiers = [],
     install_requires = ['ecdsa <1.0', 'python-jose <2.0', 'http_ece', 'pyelliptic <2.0', 'cryptography <1']

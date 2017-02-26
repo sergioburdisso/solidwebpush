@@ -91,7 +91,7 @@ class Pusher:
 
     __RE_URL__ = r"(https?://(?:[\w-]+\.)*[\w-]+(?::\d+)?)(?:/.*)?"
 
-    def __init__(s, dbName="subscriptors.db", verbose=True):
+    def __init__(s, dbName="subscriptors.db", verbose=False):
         s.__verbose__ = verbose
         s.__dbName__ = dbName
 
