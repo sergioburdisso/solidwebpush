@@ -2,3 +2,5 @@
 *.[oa]
 *~
 *.ipynb
+dist/
+*.egg-info/
