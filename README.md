@@ -96,7 +96,7 @@ Why is there that `raw_input()` statement at the bottom? it is required in this 
 In the "real world", subscription objects are going to be sent to our server via HTTP requests (probably using AJAX), and they will be stored along with the user session ID so that, later, when we need to notify a client, we do so by his session id (and not his subscription object). Fortunately, _solidwebpush_ also does this for us, as shown in the following example:
 
 ````python
-# YOUR SERVER CODE
+# SERVER CODE
 ...
 from solidwebpush import Pusher
 ...
