@@ -26,6 +26,7 @@ sudo pip install ecdsa
 sudo pip install python-jose
 sudo pip install http_ece
 sudo pip install pyelliptic
+sudo pip install py-vapid
 ~~~
 **Note:** In case of an error, specially if you're on **Raspbian**, try installing these packages before trying again (it worked for me!):
 ~~~
