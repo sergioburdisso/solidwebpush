@@ -34,7 +34,7 @@ from sqlite3 import connect as db_connect
 from thread import start_new_thread
 from pyvapid import Vapid
 
-__version__ = '1.0.1'
+__version__ = '1.0.3'
 __license__ = 'MIT'
 
 def __database_row_factory__(cursor, row):
