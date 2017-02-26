@@ -18,21 +18,22 @@ sudo pip install solidwebpush
 ### 1.2. Manual installation (recomended for Raspberry Pi)
 
 1. Download this repository
-2. Copy the "solidwebpush" folder (the one with the `\_init\_.py` in it)
+2. Copy the "solidwebpush" folder (the one with the `_init_.py` in it)
 3. Paste it into your project folder. NOTE: it has to be the folder in which you have the python script that will `import solidwebpush`.
 4. Install the required packages; open the terminal and write:
-    ~~~
-    sudo pip install ecdsa
-    sudo pip install python-jose
-    sudo pip install http_ece
-    sudo pip install pyelliptic
-    ~~~
-    NOTE: In case of an error, specially if you're on **Raspbian**, try installing these packages before trying again (it worked for me!):
-    ~~~
-    sudo apt-get install python-crypto
-    sudo apt-get install python-cryptography
-    ~~~
-5. You're ready to go! :D
+~~~
+sudo pip install ecdsa
+sudo pip install python-jose
+sudo pip install http_ece
+sudo pip install pyelliptic
+~~~
+**Note:** In case of an error, specially if you're on **Raspbian**, try installing these packages before trying again (it worked for me!):
+~~~
+sudo apt-get install python-crypto
+sudo apt-get install python-cryptography
+~~~
+
+And that's it, you're ready to go, buddy! :D
 
 ---
 ## 2. "Hello World" Example
@@ -83,7 +84,7 @@ raw_input()
 cool, uh?
 
 
-Why is there that `raw_input()` statement at the bottom? it is required in this example because the `sendNotification` method is non-blocking. And... Why is that desirable? if `sendNotification` were blocking, it would block the server's "main loop" every time it sends notifications to clients! that's way it runs within a separated thread.
+Why is there that `raw_input()` statement at the bottom? it is required in this example because the `sendNotification` method is non-blocking. And... Why is that desirable? if `sendNotification` were blocking, it would block the server's "main loop" every time it sends notifications to clients! that's why it runs within a separated thread.
 
 **Note:** these and more examples can be found inside the _"examples"_ folder.
 
@@ -95,8 +96,10 @@ Why is there that `raw_input()` statement at the bottom? it is required in this 
 In the "real world", subscription objects are going to be sent to our server via HTTP requests (probably using AJAX), and they will be stored along with the user session ID so that, later, when we need to notify a client, we do so by his session id (and not his subscription object). Fortunately, _solidwebpush_ also does this for us, as shown in the following example:
 
 ````python
-# OUR SERVER CODE
+# YOUR SERVER CODE
+...
 from solidwebpush import Pusher
+...
 
 pusher = Pusher()
 
