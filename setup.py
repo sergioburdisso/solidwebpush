@@ -16,7 +16,7 @@ it was originally designed to run on a Raspberry Pi with no web server installed
 """
 
 CWD = os.path.abspath(os.path.dirname(__file__))
-with io.open(os.path.join(CWD, '__init__.py'), 'rb', encoding='utf8') as __init__py:
+with io.open(os.path.join(CWD, '__init__.py'), encoding='utf8') as __init__py:
     __init__src = __init__py.read().decode('utf-8')
 
     RE = r"%s\s*=\s*['\"]([^'\"]+)['\"]"
