@@ -35,7 +35,7 @@ from sqlite3 import connect as db_connect
 from thread import start_new_thread
 from py_vapid import Vapid
 
-__version__ = '1.0.5'
+__version__ = '1.0.0'
 __license__ = 'MIT'
 
 def __database_row_factory__(cursor, row):
@@ -83,6 +83,9 @@ def __async__(func):
 
 
 class Pusher:
+    """
+    This is the best class
+    """
     __vapid__ = None
     __verbose__ = True
 
@@ -148,6 +151,11 @@ class Pusher:
         }
 
     def setVerbose(s, value):
+        """
+        set Verbose bla bla
+        :param value: Name of the file containing the private key
+        :type value: str
+        """
         s.__verbose__ = value
 
     def getPublicKey(s):
