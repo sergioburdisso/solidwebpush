@@ -84,7 +84,7 @@ def __async__(func):
 
 class Pusher:
     """
-    This is the best class
+    
     """
     __vapid__ = None
     __verbose__ = True
@@ -152,8 +152,8 @@ class Pusher:
 
     def setVerbose(s, value):
         """
-        set Verbose bla bla
-        :param value: Name of the file containing the private key
+        
+        :param value: 
         :type value: str
         """
         s.__verbose__ = value
