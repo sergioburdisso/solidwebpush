@@ -35,7 +35,7 @@ from sqlite3 import connect as db_connect
 from thread import start_new_thread
 from py_vapid import Vapid
 
-__version__ = '1.0.7'
+__version__ = '1.0.8'
 __license__ = 'MIT'
 
 def __doc_from__(docfunc):
