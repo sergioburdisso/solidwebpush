@@ -165,7 +165,7 @@ class Pusher:
             s.__print__("PublicKey: %s" % s.getB64PublicKey())
             #s.__print__("PrivateKey: %s" % s.getPrivateKey())
 
-    def __print__(s, msg): print "[ SolidWebPushe ] %s" % msg
+    def __print__(s, msg): print "[ SolidWebPush ] %s" % msg
 
     def __b64rpad__(s, b64str):
         return b64str + b"===="[:len(b64str) % 4]
