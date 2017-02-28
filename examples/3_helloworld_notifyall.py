@@ -4,10 +4,10 @@
 
 from solidwebpush import Pusher
 
-pusher = Pusher()
+pusher = Pusher(verbose=True)
 
 #In the previous example we created
-#a new subscription for Robert. And
+#a new subscription for Bob. And
 #therefore this should notify him too.
 #(subscription was permanently stored).
 pusher.notifyall("Hello World")
