@@ -9,7 +9,7 @@ from setuptools import setup
 
 name = 'solidwebpush'
 description="""
-This package lets your server to send Web Push Notifications to your clients.
+This package lets your server send Web Push Notifications to your clients.
 NOTE: No particular web framework are required (e.g. Django, Flask, Pyramid, etc.), since
 it was originally designed to run on a Raspberry Pi with no web server installed
 (only a bare Python program listening on a port for HTTP requests).
