@@ -1,0 +1,10 @@
+solidwebpush package
+====================
+
+Module contents
+---------------
+
+.. automodule:: solidwebpush
+    :members:
+    :undoc-members:
+    :show-inheritance:

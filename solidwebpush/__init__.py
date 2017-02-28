@@ -22,6 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+"""
+This module lets your server send Web Push Notifications to your clients.
+
+(Please, visit https://github.com/sergioburdisso/solidwebpush for more details).
+
+----
+"""
 import os
 import re
 import json
@@ -35,7 +42,7 @@ from sqlite3 import connect as db_connect
 from thread import start_new_thread
 from py_vapid import Vapid
 
-__version__ = '1.0.9'
+__version__ = '1.1.0'
 __license__ = 'MIT'
 
 def __doc_from__(docfunc):
@@ -103,29 +110,29 @@ class Pusher:
 
     e.g.
 
-        from solidwebpush import Pusher
+        >>> from solidwebpush import Pusher
+        >>> 
+        >>> pusher = Pusher()
+        >>> 
+        >>> #what's my base64-encoded public key?
+        >>> print pusher.getB64PublicKey()
+        >>> 
+        >>> subscription = "{Alice's serviceWorker subscription to the Message Server}"
+        >>> 
+        >>> #notify Alice
+        >>> pusher.sendNotification(subscription, "Hello World!")
+        >>> 
+        >>> #or
+        >>> #permanently subscribe Alice 
+        >>> pusher.newSubscription(alice_session_id, subscription)
+        >>> 
+        >>> #so that, from now on we can notify her by
+        >>> pusher.notify(alice_session_id, "Hello World")
+        >>> 
+        >>> #or notify all the permanently subscribed clients
+        >>> pusher.notifyAll("Hello World")
 
-        pusher = Pusher()
-
-        #what's my base64-encoded public key?
-        print pusher.getB64PublicKey()
-
-        subscription = '{Alice's serviceWorker subscription to the Message Server}'
-
-        #notify Alice
-        pusher.sendNotification(subscription, "Hello World!")
-
-        #or
-        #permanently subscribe Alice 
-        pusher.newSubscription(alice_session_id, subscription)
-
-        #so that, from now on we can notify her by
-        pusher.notify(alice_session_id, "Hello World")
-
-        #or notify all the permanently subscribed clients
-        pusher.notifyAll("Hello World")
-
-    (Please, visit https://github.com/sergioburdisso/solidwebpush for more details.)
+    (Visit https://github.com/sergioburdisso/solidwebpush/tree/master/examples for more "toy" examples)
     """
     __vapid__ = None
     __verbose__ = False
@@ -230,8 +237,8 @@ class Pusher:
 
     def getB64PublicKey(s):
         """
-        returns the string you're going to use when subscribing your serviceWorker.
-        (as long as you're planning to decode it using JavaScript's atob function)
+        Returns the string you're going to use when subscribing your serviceWorker.
+        (as long as you're planning to decode it using JavaScript's ``atob`` function)
 
         :returns: Base64-encoded version of the public key
         :rtype: str
@@ -250,7 +257,7 @@ class Pusher:
     def getUrlB64PublicKey(s):
         """
         This is the string you're going to use when subscribing your serviceWorker.
-        (so long as you're planning to decode it using a function like urlB64ToUint8Array from 
+        (so long as you're planning to decode it using a function like ``urlB64ToUint8Array`` from 
         https://developers.google.com/web/fundamentals/getting-started/codelabs/push-notifications/)
 
         :returns: URLSafe-Base64-encoded version of the public key
@@ -271,14 +278,14 @@ class Pusher:
     def sendNotification(s, subscription, data):
         """
         sendNotification(subscription, data)
-        pushes a notification carrying <data> to
-        the client associated with the <subscription>.
+        Pushes a notification carrying ``data`` to
+        the client associated with the ``subscription``.
 
         :param subscription: the client's subscription JSON object
         :type subscription: str
         :param data: A string or a dict object to be sent.
-                     The dict will be converted into a JSON string before being sent.
-                     An example of a dict object would be: {"title": "hey Bob!", "body": "you rock"}
+                     The dict will be automatically converted into a JSON string before being sent.
+                     An example of a dict object would be: ``{"title": "hey Bob!", "body": "you rock"}``
         :type data: str or dict
         """
         subscription = json.loads(subscription)
@@ -324,24 +331,24 @@ class Pusher:
     def newSubscription(s, idSession, subscription, idGroup=0):
         """
         newSubscription(idSession, subscription, idGroup=0)
-        Subscribes the client by permanently storing its <subscription> and group id (0 by default).
-        This will allow you to push notifications using the client id (<idSession>) instead of the
-        <subscription> object.
+        Subscribes the client by permanently storing its ``subscription`` and group id (``idGroup``).
+        This will allow you to push notifications using the client id (``idSession``) instead of its
+        ``subscription`` object.
 
         Groups help you organize subscribers. For instance, suppose you want to notify
         Bob by sending a notification to all of his devices. If you previously
         subscribed each one of his devices to the same group, let's say 13, then calling
         notifyall with 13 will push notifications to all of them:
 
-            BobsGroup = 13
-            ...
-            pusher.newSubscription(BobsTabletSessionId, subscription0, BobsGroup)
-            ...
-            pusher.newSubscription(BobsLaptopSessionId, subscription1, BobsGroup)
-            ...
-            pusher.newSubscription(BobsMobileSessionId, subscription2, BobsGroup)
-            ...
-            pusher.notifyall(BobsGroup)
+            >>> BobsGroup = 13
+            >>> ...
+            >>> pusher.newSubscription(BobsTabletSessionId, subscription0, BobsGroup)
+            >>> ...
+            >>> pusher.newSubscription(BobsLaptopSessionId, subscription1, BobsGroup)
+            >>> ...
+            >>> pusher.newSubscription(BobsMobileSessionId, subscription2, BobsGroup)
+            >>> ...
+            >>> pusher.notifyall(BobsGroup)
 
         :param idSession: The client's identification (e.g. a cookie or other session token)
         :type idSession: str
@@ -369,7 +376,7 @@ class Pusher:
     def removeSubscription(s, idSession):
         """
         removeSubscription(idSession)
-        Unsubscribes the client by permanently removing its <subscription> and group id (0 by default).
+        Unsubscribes the client by permanently removing its ``subscription`` and group id (0 by default).
 
         :param idSession: The client's identification (e.g. a cookie or other session token)
         :type idSession: str
@@ -381,15 +388,15 @@ class Pusher:
     def notify(s, idSession, data):
         """
         notify(idSession, data)
-        pushes a notification carrying <data> to the client associated with the <idSession>.
-        <idSession> is the value passed to the newSubscription method when storing the client's 
+        Pushes a notification carrying ``data`` to the client associated with the ``idSession``.
+        ``idSession`` is the value passed to the newSubscription method when storing the client's 
         subscription object.
 
         :param idSession: The client's identification (e.g. a cookie or other session token)
         :type idSession: str
         :param data: A string or a dict object to be sent.
-                     The dict will be converted into a JSON string before being sent.
-                     An example of a dict object would be: {"title": "hey Bob!", "body": "you rock"}
+                     The dict will be automatically converted into a JSON string before being sent.
+                     An example of a dict object would be: ``{"title": "hey Bob!", "body": "you rock"}
         :type data: str or dict
         """
         s.sendNotification(s.getSubscription(idSession), data)
@@ -398,17 +405,17 @@ class Pusher:
     def notifyAll(s, data, idGroup=None, exceptList=[]):
         """
         notifyAll(data, idGroup=None, exceptList=[])
-        When no <idGroup> is given, notify all subscribers (except for those in <exceptList>).
-        Otherwise, it only notifies all members of the <idGroup> group (except for those in <exceptList>).
+        When no ``idGroup`` is given, notify all subscribers (except for those in ``exceptList``).
+        Otherwise, it only notifies all members of the ``idGroup`` group (except for those in ``exceptList``).
 
         :param data: A string or a dict object to be sent.
-                     The dict will be converted into a JSON string before being sent.
-                     An example of a dict object would be: {"title": "hey Bob!", "body": "you rock"}
+                     The dict will be automatically converted into a JSON string before being sent.
+                     An example of a dict object would be: ``{"title": "hey Bob!", "body": "you rock"}
         :type data: str or dict
         :param idGroup: an optional Group ID value (0 by default)
         :type idGroup: int
         :param exceptList: The list of sessions ids to be excluded ([] by default).
-        :type exceptList: list (of <session ID>s)
+        :type exceptList: list
         """
         condition = " WHERE group_id="+idGroup if idGroup != None else ""
 

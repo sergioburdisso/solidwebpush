@@ -1,0 +1,562 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>solidwebpush &#8212; Solid Web Push 1.0.9 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for solidwebpush</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="c1"># The MIT License (MIT)</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2017 Sergio Burdisso</span>
+<span class="c1">#</span>
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions:</span>
+<span class="c1">#</span>
+<span class="c1"># The above copyright notice and this permission notice shall be included in all</span>
+<span class="c1"># copies or substantial portions of the Software.</span>
+<span class="c1">#</span>
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE</span>
+<span class="c1"># SOFTWARE.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module lets your server send Web Push Notifications to your clients.</span>
+
+<span class="sd">(Please, visit https://github.com/sergioburdisso/solidwebpush for more details).</span>
+
+<span class="sd">----</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">http_ece</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">pyelliptic</span>
+
+<span class="kn">from</span> <span class="nn">sqlite3</span> <span class="k">import</span> <span class="n">connect</span> <span class="k">as</span> <span class="n">db_connect</span>
+<span class="kn">from</span> <span class="nn">thread</span> <span class="k">import</span> <span class="n">start_new_thread</span>
+<span class="kn">from</span> <span class="nn">py_vapid</span> <span class="k">import</span> <span class="n">Vapid</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;1.0.9&#39;</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s1">&#39;MIT&#39;</span>
+
+<span class="k">def</span> <span class="nf">__doc_from__</span><span class="p">(</span><span class="n">docfunc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; a @decorator &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__wrapper__</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="n">func</span><span class="o">.</span><span class="n">__name__</span><span class="o">=</span> <span class="n">docfunc</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="n">func</span><span class="o">.</span><span class="n">__doc__</span><span class="o">=</span> <span class="n">docfunc</span><span class="o">.</span><span class="n">__doc__</span>
+        <span class="k">return</span> <span class="n">func</span>
+    <span class="k">return</span> <span class="n">__wrapper__</span>
+
+<span class="k">def</span> <span class="nf">__database__</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; a @decorator &quot;&quot;&quot;</span>
+    <span class="nd">@__doc_from__</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init_database__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">__dbConn__</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">__dbConn__</span> <span class="o">=</span> <span class="n">db_connect</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">__dbName__</span><span class="p">)</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">__dbConn__</span><span class="o">.</span><span class="n">row_factory</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">cursor</span><span class="p">,</span><span class="n">row</span><span class="p">:</span> \
+                                            <span class="nb">dict</span><span class="p">((</span>
+                                                <span class="p">(</span><span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cursor</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+                                            <span class="p">))</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">__db__</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">__dbConn__</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">__db__</span><span class="o">.</span><span class="n">executescript</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">                    CREATE TABLE subscriptors (</span>
+<span class="s1">                        session_id VARCHAR(256) NOT NULL PRIMARY KEY,</span>
+<span class="s1">                        subscription VARCHAR(512) NOT NULL,</span>
+<span class="s1">                        group_id INT NOT NULL</span>
+<span class="s1">                    );</span>
+<span class="s1">                &#39;&#39;&#39;</span><span class="p">)</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">__dbConn__</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="k">except</span><span class="p">:</span><span class="k">pass</span> 
+            
+            <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">s</span><span class="o">.</span><span class="n">__dbConn__</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">__dbConn__</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="n">__init_database__</span><span class="o">.</span><span class="n">__name__</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">__name__</span>
+    <span class="n">__init_database__</span><span class="o">.</span><span class="n">__doc__</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">__doc__</span>
+
+    <span class="k">return</span> <span class="n">__init_database__</span>
+
+<span class="k">def</span> <span class="nf">__async__</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; a @decorator &quot;&quot;&quot;</span>
+    <span class="nd">@__doc_from__</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__thread_wrapper__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">start_new_thread</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">__thread_wrapper__</span>
+
+
+<div class="viewcode-block" id="Pusher"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher">[docs]</a><span class="k">class</span> <span class="nc">Pusher</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Instantiate this class to integrate Web Push Notifications</span>
+<span class="sd">    to your server. Objects of this class will create your public</span>
+<span class="sd">    and private key, track your subscriptions, notify your clients,</span>
+<span class="sd">    and do all the required work for you.</span>
+
+<span class="sd">    e.g.</span>
+
+<span class="sd">        &gt;&gt;&gt; from solidwebpush import Pusher</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; pusher = Pusher()</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; #what&#39;s my base64-encoded public key?</span>
+<span class="sd">        &gt;&gt;&gt; print pusher.getB64PublicKey()</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; subscription = &quot;{Alice&#39;s serviceWorker subscription to the Message Server}&quot;</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; #notify Alice</span>
+<span class="sd">        &gt;&gt;&gt; pusher.sendNotification(subscription, &quot;Hello World!&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; #or</span>
+<span class="sd">        &gt;&gt;&gt; #permanently subscribe Alice </span>
+<span class="sd">        &gt;&gt;&gt; pusher.newSubscription(alice_session_id, subscription)</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; #so that, from now on we can notify her by</span>
+<span class="sd">        &gt;&gt;&gt; pusher.notify(alice_session_id, &quot;Hello World&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; #or notify all the permanently subscribed clients</span>
+<span class="sd">        &gt;&gt;&gt; pusher.notifyAll(&quot;Hello World&quot;)</span>
+
+<span class="sd">    (Visit https://github.com/sergioburdisso/solidwebpush/tree/master/examples for more &quot;toy&quot; examples)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__vapid__</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">__verbose__</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">__dbName__</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">__dbConn__</span><span class="o">=</span> <span class="kc">None</span>
+    <span class="n">__db__</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">__RE_URL__</span> <span class="o">=</span> <span class="s2">r&quot;(https?://(?:[\w-]+\.)*[\w-]+(?::\d+)?)(?:/.*)?&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">dbName</span><span class="o">=</span><span class="s2">&quot;subscriptors.db&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Class constructor</span>
+
+<span class="sd">        :param dbName: The [optional] name (&quot;subscriptors.db&quot; by default) of the file in</span>
+<span class="sd">                       which subscriptions will be stored in.</span>
+<span class="sd">                       This is only required if methods like newSubscription will be used.</span>
+<span class="sd">        :type dbName: str</span>
+<span class="sd">        :param verbose: An optional value, to enabled or disabled the &quot;verbose mode&quot; (False by default)</span>
+<span class="sd">        :type verbose: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">__verbose__</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">__dbName__</span> <span class="o">=</span> <span class="n">dbName</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;private_key.pem&#39;</span><span class="p">):</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">__print__</span><span class="p">(</span><span class="s2">&quot;No private_key.pem file found&quot;</span><span class="p">)</span>
+            <span class="n">Vapid</span><span class="p">()</span><span class="o">.</span><span class="n">save_key</span><span class="p">(</span><span class="s1">&#39;private_key.pem&#39;</span><span class="p">)</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">__print__</span><span class="p">(</span><span class="s2">&quot;private_key.pem file created&quot;</span><span class="p">)</span>
+
+        <span class="n">s</span><span class="o">.</span><span class="n">__vapid__</span> <span class="o">=</span> <span class="n">Vapid</span><span class="p">(</span><span class="s1">&#39;private_key.pem&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;public_key.pem&#39;</span><span class="p">):</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">__print__</span><span class="p">(</span><span class="s2">&quot;No public_key.pem file found&quot;</span><span class="p">)</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">__vapid__</span><span class="o">.</span><span class="n">save_public_key</span><span class="p">(</span><span class="s1">&#39;public_key.pem&#39;</span><span class="p">)</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">__print__</span><span class="p">(</span><span class="s2">&quot;public_key.pem file created&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">__print__</span><span class="p">(</span><span class="s2">&quot;PublicKey: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">s</span><span class="o">.</span><span class="n">getB64PublicKey</span><span class="p">())</span>
+            <span class="c1">#s.__print__(&quot;PrivateKey: %s&quot; % s.getPrivateKey())</span>
+
+    <span class="k">def</span> <span class="nf">__print__</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span> <span class="nb">print</span> <span class="s2">&quot;[ SolidWebPush ] </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">msg</span>
+
+    <span class="k">def</span> <span class="nf">__b64rpad__</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">b64str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">b64str</span> <span class="o">+</span> <span class="n">b</span><span class="s2">&quot;====&quot;</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">b64str</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__encrypt__</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">userPublicKey</span><span class="p">,</span> <span class="n">userAuth</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+        <span class="n">userPublicKey</span> <span class="o">=</span> <span class="n">userPublicKey</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span>
+        <span class="n">rawUserPublicKey</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64decode</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">__b64rpad__</span><span class="p">(</span><span class="n">userPublicKey</span><span class="p">))</span>
+
+        <span class="n">userAuth</span> <span class="o">=</span> <span class="n">userAuth</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span>
+        <span class="n">rawUserAuth</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64decode</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">__b64rpad__</span><span class="p">(</span><span class="n">userAuth</span><span class="p">))</span>
+
+        <span class="n">salt</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+
+        <span class="n">localCurve</span> <span class="o">=</span> <span class="n">pyelliptic</span><span class="o">.</span><span class="n">ECC</span><span class="p">(</span><span class="n">curve</span><span class="o">=</span><span class="s2">&quot;prime256v1&quot;</span><span class="p">)</span>
+        <span class="n">localCurveId</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="n">localCurve</span><span class="o">.</span><span class="n">get_pubkey</span><span class="p">()[</span><span class="mi">1</span><span class="p">:])</span>
+
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span>
+
+        <span class="n">http_ece</span><span class="o">.</span><span class="n">keys</span><span class="p">[</span><span class="n">localCurveId</span><span class="p">]</span> <span class="o">=</span> <span class="n">localCurve</span>
+        <span class="n">http_ece</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">localCurveId</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;P-256&quot;</span>
+
+        <span class="n">encrypted</span> <span class="o">=</span> <span class="n">http_ece</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span>
+            <span class="n">payload</span><span class="p">,</span>
+            <span class="n">keyid</span><span class="o">=</span> <span class="n">localCurveId</span><span class="p">,</span>
+            <span class="n">dh</span><span class="o">=</span> <span class="n">rawUserPublicKey</span><span class="p">,</span>
+            <span class="n">salt</span><span class="o">=</span> <span class="n">salt</span><span class="p">,</span>
+            <span class="n">authSecret</span><span class="o">=</span> <span class="n">rawUserAuth</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;dh&#39;</span><span class="p">:</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="n">localCurve</span><span class="o">.</span><span class="n">get_pubkey</span><span class="p">())</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">b</span><span class="s1">&#39;=&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;salt&#39;</span><span class="p">:</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="n">salt</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">b</span><span class="s1">&#39;=&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;body&#39;</span><span class="p">:</span> <span class="n">encrypted</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="Pusher.setVerbose"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.setVerbose">[docs]</a>    <span class="k">def</span> <span class="nf">setVerbose</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enables and disables the verbose mode (disabled by default).</span>
+<span class="sd">        When verbose mode is active, some internal messages are going</span>
+<span class="sd">        to be displayed, as well as the responses from the Message Server.</span>
+
+<span class="sd">        :param value: True to enable or False to disable</span>
+<span class="sd">        :type value: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">__verbose__</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="Pusher.getPublicKey"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.getPublicKey">[docs]</a>    <span class="k">def</span> <span class="nf">getPublicKey</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :returns: the raw public key</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\x04</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">s</span><span class="o">.</span><span class="n">__vapid__</span><span class="o">.</span><span class="n">public_key</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Pusher.getPrivateKey"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.getPrivateKey">[docs]</a>    <span class="k">def</span> <span class="nf">getPrivateKey</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        (probably you won&#39;t care about private key at all)</span>
+
+<span class="sd">        :returns: the raw private key</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">__vapid__</span><span class="o">.</span><span class="n">private_key</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Pusher.getB64PublicKey"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.getB64PublicKey">[docs]</a>    <span class="k">def</span> <span class="nf">getB64PublicKey</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the string you&#39;re going to use when subscribing your serviceWorker.</span>
+<span class="sd">        (as long as you&#39;re planning to decode it using JavaScript&#39;s ``atob`` function)</span>
+
+<span class="sd">        :returns: Base64-encoded version of the public key</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">getPublicKey</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="Pusher.getB64PrivateKey"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.getB64PrivateKey">[docs]</a>    <span class="k">def</span> <span class="nf">getB64PrivateKey</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        (probably you won&#39;t care about private key at all)</span>
+
+<span class="sd">        :returns: Base64-encoded version of the private key</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">getPrivateKey</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="Pusher.getUrlB64PublicKey"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.getUrlB64PublicKey">[docs]</a>    <span class="k">def</span> <span class="nf">getUrlB64PublicKey</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is the string you&#39;re going to use when subscribing your serviceWorker.</span>
+<span class="sd">        (so long as you&#39;re planning to decode it using a function like ``urlB64ToUint8Array`` from </span>
+<span class="sd">        https://developers.google.com/web/fundamentals/getting-started/codelabs/push-notifications/)</span>
+
+<span class="sd">        :returns: URLSafe-Base64-encoded version of the public key</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">getPublicKey</span><span class="p">())</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pusher.getUrlB64PrivateKey"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.getUrlB64PrivateKey">[docs]</a>    <span class="k">def</span> <span class="nf">getUrlB64PrivateKey</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        (probably you won&#39;t care about private key at all)</span>
+
+<span class="sd">        :returns: URLSafe-Base64-encoded version of the private key</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">getPrivateKey</span><span class="p">())</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span></div>
+
+    <span class="nd">@__async__</span>
+<div class="viewcode-block" id="Pusher.sendNotification"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.sendNotification">[docs]</a>    <span class="k">def</span> <span class="nf">sendNotification</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">subscription</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        sendNotification(subscription, data)</span>
+<span class="sd">        Pushes a notification carrying ``data`` to</span>
+<span class="sd">        the client associated with the ``subscription``.</span>
+
+<span class="sd">        :param subscription: the client&#39;s subscription JSON object</span>
+<span class="sd">        :type subscription: str</span>
+<span class="sd">        :param data: A string or a dict object to be sent.</span>
+<span class="sd">                     The dict will be automatically converted into a JSON string before being sent.</span>
+<span class="sd">                     An example of a dict object would be: ``{&quot;title&quot;: &quot;hey Bob!&quot;, &quot;body&quot;: &quot;you rock&quot;}``</span>
+<span class="sd">        :type data: str or dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">subscription</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">subscription</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="n">base_url</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">__RE_URL__</span><span class="p">,</span> <span class="n">subscription</span><span class="p">[</span><span class="s2">&quot;endpoint&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">encrypted</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">__encrypt__</span><span class="p">(</span>
+            <span class="n">subscription</span><span class="p">[</span><span class="s2">&quot;keys&quot;</span><span class="p">][</span><span class="s2">&quot;p256dh&quot;</span><span class="p">],</span>
+            <span class="n">subscription</span><span class="p">[</span><span class="s2">&quot;keys&quot;</span><span class="p">][</span><span class="s2">&quot;auth&quot;</span><span class="p">],</span>
+            <span class="n">data</span>
+        <span class="p">)</span>
+
+        <span class="n">jwtpayload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;aud&quot;</span><span class="p">:</span> <span class="n">base_url</span><span class="p">,</span>
+            <span class="s2">&quot;exp&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span> <span class="o">+</span> <span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">12</span><span class="p">,</span>
+            <span class="s2">&quot;sub&quot;</span><span class="p">:</span> <span class="s2">&quot;mailto:admin@yamanouchihnos.com&quot;</span>
+        <span class="p">}</span>
+
+        <span class="n">headers</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">__vapid__</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">jwtpayload</span><span class="p">)</span>
+        <span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Crypto-Key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;dh=</span><span class="si">%s</span><span class="s2">;p256ecdsa=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">encrypted</span><span class="p">[</span><span class="s2">&quot;dh&quot;</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">getUrlB64PublicKey</span><span class="p">())</span>
+        <span class="n">headers</span><span class="p">[</span><span class="s2">&quot;TTL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">43200</span> <span class="c1">#seconds</span>
+        <span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;application/octet-stream&quot;</span>
+        <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Encoding&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;aesgcm&#39;</span><span class="p">;</span>
+        <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Encryption&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;salt=&#39;</span> <span class="o">+</span> <span class="n">encrypted</span><span class="p">[</span><span class="s2">&quot;salt&quot;</span><span class="p">];</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+            <span class="n">subscription</span><span class="p">[</span><span class="s2">&quot;endpoint&quot;</span><span class="p">],</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">encrypted</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">],</span>
+            <span class="n">headers</span><span class="o">=</span><span class="n">headers</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">__verbose__</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">__print__</span><span class="p">(</span>
+                <span class="s2">&quot;Message Server response was: </span><span class="se">\n</span><span class="s2">Status: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">Body: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="o">%</span>
+                <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="p">)</span></div>
+
+    <span class="nd">@__database__</span>
+<div class="viewcode-block" id="Pusher.newSubscription"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.newSubscription">[docs]</a>    <span class="k">def</span> <span class="nf">newSubscription</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idSession</span><span class="p">,</span> <span class="n">subscription</span><span class="p">,</span> <span class="n">idGroup</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        newSubscription(idSession, subscription, idGroup=0)</span>
+<span class="sd">        Subscribes the client by permanently storing its ``subscription`` and group id (``idGroup``).</span>
+<span class="sd">        This will allow you to push notifications using the client id (``idSession``) instead of its</span>
+<span class="sd">        ``subscription`` object.</span>
+
+<span class="sd">        Groups help you organize subscribers. For instance, suppose you want to notify</span>
+<span class="sd">        Bob by sending a notification to all of his devices. If you previously</span>
+<span class="sd">        subscribed each one of his devices to the same group, let&#39;s say 13, then calling</span>
+<span class="sd">        notifyall with 13 will push notifications to all of them:</span>
+
+<span class="sd">            &gt;&gt;&gt; BobsGroup = 13</span>
+<span class="sd">            &gt;&gt;&gt; ...</span>
+<span class="sd">            &gt;&gt;&gt; pusher.newSubscription(BobsTabletSessionId, subscription0, BobsGroup)</span>
+<span class="sd">            &gt;&gt;&gt; ...</span>
+<span class="sd">            &gt;&gt;&gt; pusher.newSubscription(BobsLaptopSessionId, subscription1, BobsGroup)</span>
+<span class="sd">            &gt;&gt;&gt; ...</span>
+<span class="sd">            &gt;&gt;&gt; pusher.newSubscription(BobsMobileSessionId, subscription2, BobsGroup)</span>
+<span class="sd">            &gt;&gt;&gt; ...</span>
+<span class="sd">            &gt;&gt;&gt; pusher.notifyall(BobsGroup)</span>
+
+<span class="sd">        :param idSession: The client&#39;s identification (e.g. a cookie or other session token)</span>
+<span class="sd">        :type idSession: str</span>
+<span class="sd">        :param subscription: The client&#39;s subscription JSON object</span>
+<span class="sd">        :type subscription: str</span>
+<span class="sd">        :param idGroup: an optional Group ID value (0 by default)</span>
+<span class="sd">        :type idGroup: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">getSubscription</span><span class="p">(</span><span class="n">idSession</span><span class="p">):</span>
+            <span class="n">oldIdSession</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">getIdSession</span><span class="p">(</span><span class="n">subscription</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">oldIdSession</span><span class="p">:</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">removeSubscription</span><span class="p">(</span><span class="n">oldIdSession</span><span class="p">)</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">__db__</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="s2">&quot;INSERT INTO subscriptors (session_id, subscription, group_id) VALUES (?,?,?)&quot;</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">idSession</span><span class="p">,</span> <span class="n">subscription</span><span class="p">,</span> <span class="n">idGroup</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">__db__</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="s2">&quot;UPDATE subscriptors SET subscription=?, group_id=? WHERE session_id=?&quot;</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">subscription</span><span class="p">,</span> <span class="n">idGroup</span><span class="p">,</span> <span class="n">idSession</span><span class="p">,)</span>
+            <span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">__dbConn__</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+    <span class="nd">@__database__</span>
+<div class="viewcode-block" id="Pusher.removeSubscription"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.removeSubscription">[docs]</a>    <span class="k">def</span> <span class="nf">removeSubscription</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idSession</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        removeSubscription(idSession)</span>
+<span class="sd">        Unsubscribes the client by permanently removing its ``subscription`` and group id (0 by default).</span>
+
+<span class="sd">        :param idSession: The client&#39;s identification (e.g. a cookie or other session token)</span>
+<span class="sd">        :type idSession: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">__db__</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;DELETE FROM subscriptors WHERE session_id = ?&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">idSession</span><span class="p">,))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">__dbConn__</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+    <span class="nd">@__database__</span>
+<div class="viewcode-block" id="Pusher.notify"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.notify">[docs]</a>    <span class="k">def</span> <span class="nf">notify</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idSession</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        notify(idSession, data)</span>
+<span class="sd">        Pushes a notification carrying ``data`` to the client associated with the ``idSession``.</span>
+<span class="sd">        ``idSession`` is the value passed to the newSubscription method when storing the client&#39;s </span>
+<span class="sd">        subscription object.</span>
+
+<span class="sd">        :param idSession: The client&#39;s identification (e.g. a cookie or other session token)</span>
+<span class="sd">        :type idSession: str</span>
+<span class="sd">        :param data: A string or a dict object to be sent.</span>
+<span class="sd">                     The dict will be automatically converted into a JSON string before being sent.</span>
+<span class="sd">                     An example of a dict object would be: ``{&quot;title&quot;: &quot;hey Bob!&quot;, &quot;body&quot;: &quot;you rock&quot;}</span>
+<span class="sd">        :type data: str or dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">sendNotification</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">getSubscription</span><span class="p">(</span><span class="n">idSession</span><span class="p">),</span> <span class="n">data</span><span class="p">)</span></div>
+
+    <span class="nd">@__database__</span>
+<div class="viewcode-block" id="Pusher.notifyAll"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.notifyAll">[docs]</a>    <span class="k">def</span> <span class="nf">notifyAll</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">idGroup</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exceptList</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        notifyAll(data, idGroup=None, exceptList=[])</span>
+<span class="sd">        When no ``idGroup`` is given, notify all subscribers (except for those in ``exceptList``).</span>
+<span class="sd">        Otherwise, it only notifies all members of the ``idGroup`` group (except for those in ``exceptList``).</span>
+
+<span class="sd">        :param data: A string or a dict object to be sent.</span>
+<span class="sd">                     The dict will be automatically converted into a JSON string before being sent.</span>
+<span class="sd">                     An example of a dict object would be: ``{&quot;title&quot;: &quot;hey Bob!&quot;, &quot;body&quot;: &quot;you rock&quot;}</span>
+<span class="sd">        :type data: str or dict</span>
+<span class="sd">        :param idGroup: an optional Group ID value (0 by default)</span>
+<span class="sd">        :type idGroup: int</span>
+<span class="sd">        :param exceptList: The list of sessions ids to be excluded ([] by default).</span>
+<span class="sd">        :type exceptList: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">condition</span> <span class="o">=</span> <span class="s2">&quot; WHERE group_id=&quot;</span><span class="o">+</span><span class="n">idGroup</span> <span class="k">if</span> <span class="n">idGroup</span> <span class="o">!=</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">__db__</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT * FROM subscriptors&quot;</span><span class="o">+</span><span class="n">condition</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;session_id&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exceptList</span><span class="p">:</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">sendNotification</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;subscription&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">)</span></div>
+
+    <span class="nd">@__database__</span>
+<div class="viewcode-block" id="Pusher.getIdSession"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.getIdSession">[docs]</a>    <span class="k">def</span> <span class="nf">getIdSession</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">subscription</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        getIdSession(subscription)</span>
+<span class="sd">        Given a subscription object returns the session id associated with it.</span>
+
+<span class="sd">        :param subscription: The client&#39;s subscription JSON object</span>
+<span class="sd">        :type subscription: str</span>
+<span class="sd">        :returns: the session id associated with subscription</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">__db__</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="s2">&quot;SELECT session_id FROM subscriptors WHERE subscription=?&quot;</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">subscription</span><span class="p">,)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">res</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+    <span class="nd">@__database__</span>
+<div class="viewcode-block" id="Pusher.getSubscription"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.getSubscription">[docs]</a>    <span class="k">def</span> <span class="nf">getSubscription</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idSession</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        getSubscription(idSession)</span>
+<span class="sd">        Given a session id returns the subscription object associated with it.</span>
+
+<span class="sd">        :param idSession: A session id</span>
+<span class="sd">        :type idSession: str</span>
+<span class="sd">        :returns: The client&#39;s subscription JSON object associated with the session id</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">__db__</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="s2">&quot;SELECT subscription FROM subscriptors WHERE session_id=?&quot;</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">idSession</span><span class="p">,)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">res</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+    <span class="nd">@__database__</span>
+<div class="viewcode-block" id="Pusher.getGroupId"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.getGroupId">[docs]</a>    <span class="k">def</span> <span class="nf">getGroupId</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">idSession</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        getGroupId(idSession)</span>
+<span class="sd">        Given a session id returns the group id it belongs to.</span>
+
+<span class="sd">        :param idSession: A session id</span>
+<span class="sd">        :type idSession: str</span>
+<span class="sd">        :returns: a group id value</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">__db__</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="s2">&quot;SELECT group_id FROM subscriptors WHERE session_id=?&quot;</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">idSession</span><span class="p">,)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">res</span> <span class="k">else</span> <span class="kc">None</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Sergio Burdisso.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

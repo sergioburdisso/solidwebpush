@@ -1,4 +1,6 @@
 include *.md
 include *.txt
 include LICENSE
+recursive-include docs
+recursive-include examples
 recursive-include solidwebpush
