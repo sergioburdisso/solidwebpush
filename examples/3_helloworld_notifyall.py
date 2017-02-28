@@ -10,12 +10,12 @@ pusher = Pusher(verbose=True)
 #a new subscription for Bob. And
 #therefore this should notify him too.
 #(subscription was permanently stored).
-pusher.notifyall("Hello World")
+pusher.notifyAll("Hello World")
 
 #NOTE: remember you can send a dict
 #object too, it will be converted to
 #a JSON string, like for instance:
-#pusher.notifyall({
+#pusher.notifyAll({
 #	"title": "Hi there!",
 #	"body": "Hello World"
 #})
