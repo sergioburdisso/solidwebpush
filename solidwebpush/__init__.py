@@ -149,7 +149,7 @@ class Pusher:
 
         :param dbName: The [optional] name ("subscriptors.db" by default) of the file in
                        which subscriptions will be stored in.
-                       This is only required if methods like newSubscription will be used.
+                       This is only required if methods like ``newSubscription`` will be used.
         :type dbName: str
         :param verbose: An optional value, to enabled or disabled the "verbose mode" (False by default)
         :type verbose: bool
@@ -376,7 +376,7 @@ class Pusher:
     def removeSubscription(s, idSession):
         """
         removeSubscription(idSession)
-        Unsubscribes the client by permanently removing its ``subscription`` and group id (0 by default).
+        Unsubscribes the client by permanently removing its ``subscription`` and group id.
 
         :param idSession: The client's identification (e.g. a cookie or other session token)
         :type idSession: str
@@ -389,14 +389,14 @@ class Pusher:
         """
         notify(idSession, data)
         Pushes a notification carrying ``data`` to the client associated with the ``idSession``.
-        ``idSession`` is the value passed to the newSubscription method when storing the client's 
+        ``idSession`` is the value passed to the ``newSubscription`` method when storing the client's 
         subscription object.
 
         :param idSession: The client's identification (e.g. a cookie or other session token)
         :type idSession: str
         :param data: A string or a dict object to be sent.
                      The dict will be automatically converted into a JSON string before being sent.
-                     An example of a dict object would be: ``{"title": "hey Bob!", "body": "you rock"}
+                     An example of a dict object would be: ``{"title": "hey Bob!", "body": "you rock"}``
         :type data: str or dict
         """
         s.sendNotification(s.getSubscription(idSession), data)
@@ -410,7 +410,7 @@ class Pusher:
 
         :param data: A string or a dict object to be sent.
                      The dict will be automatically converted into a JSON string before being sent.
-                     An example of a dict object would be: ``{"title": "hey Bob!", "body": "you rock"}
+                     An example of a dict object would be: ``{"title": "hey Bob!", "body": "you rock"}``
         :type data: str or dict
         :param idGroup: an optional Group ID value (0 by default)
         :type idGroup: int
