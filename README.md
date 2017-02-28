@@ -11,9 +11,9 @@ only a bare Python script listening on a port for HTTP requests).
 
 ### 1.1 Using pip
 
-~~~
+````
 sudo pip install solidwebpush
-~~~
+````
 
 ### 1.2. Manual installation (recomended for Raspberry Pi)
 
@@ -21,23 +21,28 @@ sudo pip install solidwebpush
 2. Copy the "solidwebpush" folder (the one with the `_init_.py` in it)
 3. Paste it into your project folder. NOTE: it has to be the folder in which you have the python script that will `import solidwebpush`.
 4. Install the required packages; open the terminal and write:
-~~~
+````
 sudo pip install ecdsa
 sudo pip install python-jose
 sudo pip install http_ece
 sudo pip install pyelliptic
 sudo pip install py-vapid
-~~~
+````
 **Note:** In case of an error, specially if you're on **Raspbian**, try installing these packages before trying again (it worked for me!):
-~~~
+````
 sudo apt-get install python-crypto
 sudo apt-get install python-cryptography
-~~~
+````
 
 And that's it, you're ready to go, buddy! :D
 
 ---
-## 2. "Hello World" Example
+## 2. API Documentation
+
+[http://pythonhosted.org/solidwebpush/](http://pythonhosted.org/solidwebpush/)
+
+---
+## 3. "Hello World" Example
 
 In order for us to be able to send a "Hello World" notification from our server to our client devices, we should have the client-side all set up, and that's why first we need to do [this Google codelab](https://developers.google.com/web/fundamentals/getting-started/codelabs/push-notifications/) before we move forward _(Note: if you're already familiar with Web Push Notifications, you could just skip this part; otherwise,  don't have to worry! it shouldn't take you too much time to get it done, trust me :D )_.
 
@@ -92,7 +97,7 @@ Why is there that `raw_input()` statement at the bottom? it is required in this 
 
 
 ---
-## 3. Good to know...
+## 4. Good to know...
 
 In the "real world", subscription objects are going to be sent to our server via HTTP requests (probably using AJAX), and they will be stored along with the user session ID so that, later, when we need to notify a client, we do so by his session id (and not his subscription object). Fortunately, _solidwebpush_ also does this for us, as shown in the following example:
 
@@ -138,7 +143,7 @@ pusher.notifyAll(msg)
 ````
 When `Pusher`'s `newSubscription` is called for the very first time, a sqlite-database file will be automatically generated ('subscriptors.db' by default) to store all these subscriptions for us. Later, when we use a method like `notifyAll` (or `notify`), _solidwebpush_ will push the notifications using the information that is stored there.
 
-Finally, I highly recommend you to read the documentations for a "more in depth" understanding of the package. For instance, `newSubscription` and `notifyAll` can receive an [optional] parameter to specify a group ID. As shown below:
+Finally, I highly recommend you to read the [documentation](http://pythonhosted.org/solidwebpush/) for a "more in depth" understanding of the package. For instance, `newSubscription` and `notifyAll` can receive an [optional] parameter to specify a group ID. As shown below:
 
 ````python
 ...
