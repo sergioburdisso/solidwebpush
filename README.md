@@ -84,15 +84,11 @@ subscription = '{"endpoint":"https://fcm.googleapis.com/fcm/send/cOZ80twUe2I:APA
 pusher = Pusher()
 pusher.sendNotification(subscription, "Hello World")
 
-raw_input()
-
 ````
 cool, uh?
 
 
-Why is there that `raw_input()` statement at the bottom? it is required in this example because the `sendNotification` method is non-blocking. And... Why is that desirable? if `sendNotification` were blocking, it would block the server's "main loop" every time it sends notifications to clients! that's why it runs within a separated thread.
-
-**Note:** these and more examples can be found inside the _"examples"_ folder.
+**Note:** these and more [examples](https://github.com/sergioburdisso/solidwebpush/tree/master/examples) can be found inside the _"examples"_ folder.
 
 
 
@@ -155,3 +151,18 @@ pusher.newSubscription(session_id, subscription, 13)
 pusher.notifyAll("Hello World", 13)
 ...
 ````
+
+Additionally every method that lets you push notifications (`sendNotification`, `sendNotificationToAll`, `notify`, `notifyAll`) has an [optional] `nonblocking` parameter, in case you want to use a non-blocking version of it. In which case the `wait` method can be called every time you need your program to block until all the messages are sent. For example:
+
+````python
+subscriptions = [ ... ]
+...
+pusher.sendNotificationToAll(subscriptions, "Hello World", nonblocking=True)
+# lets continue doing useful things for the user
+...
+
+#and in case we need to wait for those messages to be sent
+pusher.wait()
+````
+
+Why could be a non-blocking version desirable? When blocking mode is used (the default), the server's "main loop" blocks every time it sends notifications and in some cases that is not desirable —for instance, if it negatively affects the overall system response time.
