@@ -56,9 +56,10 @@ setup(
     install_requires = [
         'ecdsa <1.0',
         'python-jose <2.0',
-        'http_ece',
-        'pyelliptic <2.0',
+        'http_ece >=0.5, <1.0',
+        'pyelliptic >=1.0, <2.0',
         'cryptography >=1.0, <2.0',
-        'py-vapid < 1.0'
+        'py-vapid >=0.5, <1.0',
+        'requests >=2.0, <=2.5'
     ]
 )

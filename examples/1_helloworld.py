@@ -9,8 +9,3 @@ subscription = '<paste here the subscription object generated after subscribing 
 
 pusher = Pusher(verbose=True)
 pusher.sendNotification(subscription, "Hello World")
-
-#let's wait for the notification
-#to be sent before we exit by
-#pressing Enter
-raw_input()

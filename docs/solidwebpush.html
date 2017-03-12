@@ -47,43 +47,46 @@
 <div class="section" id="module-solidwebpush">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-solidwebpush" title="Permalink to this headline">¶</a></h2>
 <p>This module lets your server send Web Push Notifications to your clients.</p>
-<p>(Please, visit <a class="reference external" href="https://github.com/sergioburdisso/solidwebpush">https://github.com/sergioburdisso/solidwebpush</a> for more details).</p>
+<p>(Please, visit <a class="reference external" href="https://github.com/sergioburdisso/solidwebpush">https://github.com/sergioburdisso/solidwebpush</a> for more info).</p>
 <hr class="docutils" />
 <dl class="class">
 <dt id="solidwebpush.Pusher">
-<em class="property">class </em><code class="descclassname">solidwebpush.</code><code class="descname">Pusher</code><span class="sig-paren">(</span><em>s</em>, <em>dbName='subscriptors.db'</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">solidwebpush.</code><code class="descname">Pusher</code><span class="sig-paren">(</span><em>dbName='subscriptors.db'</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Instantiate this class to integrate Web Push Notifications
 to your server. Objects of this class will create your public
 and private key, track your subscriptions, notify your clients,
 and do all the required work for you.</p>
 <p>e.g.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">solidwebpush</span> <span class="k">import</span> <span class="n">Pusher</span>
-<span class="gp">&gt;&gt;&gt; </span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span> <span class="o">=</span> <span class="n">Pusher</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#what&#39;s my base64-encoded public key?</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">pusher</span><span class="o">.</span><span class="n">getB64PublicKey</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">subscription</span> <span class="o">=</span> <span class="s2">&quot;{Alice&#39;s serviceWorker subscription to the Message Server}&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">subscription</span> <span class="o">=</span> <span class="s2">&quot;{Alice&#39;s serviceWorker subscription object}&quot;</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#notify Alice</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span><span class="o">.</span><span class="n">sendNotification</span><span class="p">(</span><span class="n">subscription</span><span class="p">,</span> <span class="s2">&quot;Hello World!&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#or</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1">#permanently subscribe Alice </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#permanently subscribe Alice</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span><span class="o">.</span><span class="n">newSubscription</span><span class="p">(</span><span class="n">alice_session_id</span><span class="p">,</span> <span class="n">subscription</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#so that, from now on we can notify her by</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="n">alice_session_id</span><span class="p">,</span> <span class="s2">&quot;Hello World&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#or notify all the permanently subscribed clients</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span><span class="o">.</span><span class="n">notifyAll</span><span class="p">(</span><span class="s2">&quot;Hello World&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(Visit <a class="reference external" href="https://github.com/sergioburdisso/solidwebpush/tree/master/examples">https://github.com/sergioburdisso/solidwebpush/tree/master/examples</a> for more &#8220;toy&#8221; examples)</p>
+<dl class="docutils">
+<dt>(for more &#8220;toy&#8221; examples visit</dt>
+<dd><a class="reference external" href="https://github.com/sergioburdisso/solidwebpush/tree/master/examples">https://github.com/sergioburdisso/solidwebpush/tree/master/examples</a>)</dd>
+</dl>
 <dl class="method">
 <dt id="solidwebpush.Pusher.getB64PrivateKey">
-<code class="descname">getB64PrivateKey</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.getB64PrivateKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.getB64PrivateKey" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getB64PrivateKey</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.getB64PrivateKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.getB64PrivateKey" title="Permalink to this definition">¶</a></dt>
 <dd><p>(probably you won&#8217;t care about private key at all)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -99,9 +102,11 @@ and do all the required work for you.</p>
 
 <dl class="method">
 <dt id="solidwebpush.Pusher.getB64PublicKey">
-<code class="descname">getB64PublicKey</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.getB64PublicKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.getB64PublicKey" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the string you&#8217;re going to use when subscribing your serviceWorker.
-(as long as you&#8217;re planning to decode it using JavaScript&#8217;s <code class="docutils literal"><span class="pre">atob</span></code> function)</p>
+<code class="descname">getB64PublicKey</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.getB64PublicKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.getB64PublicKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the string you&#8217;re going to use when subscribing your
+serviceWorker.
+(as long as you&#8217;re planning to decode it using JavaScript&#8217;s
+<code class="docutils literal"><span class="pre">atob</span></code> function)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -152,7 +157,7 @@ and do all the required work for you.</p>
 
 <dl class="method">
 <dt id="solidwebpush.Pusher.getPrivateKey">
-<code class="descname">getPrivateKey</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.getPrivateKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.getPrivateKey" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getPrivateKey</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.getPrivateKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.getPrivateKey" title="Permalink to this definition">¶</a></dt>
 <dd><p>(probably you won&#8217;t care about private key at all)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -168,7 +173,7 @@ and do all the required work for you.</p>
 
 <dl class="method">
 <dt id="solidwebpush.Pusher.getPublicKey">
-<code class="descname">getPublicKey</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.getPublicKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.getPublicKey" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getPublicKey</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.getPublicKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.getPublicKey" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -191,7 +196,8 @@ and do all the required work for you.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idSession</strong> (<em>str</em>) &#8211; A session id</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The client&#8217;s subscription JSON object associated with the session id</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The client&#8217;s subscription JSON object associated with
+the session id.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
 </tr>
@@ -201,7 +207,7 @@ and do all the required work for you.</p>
 
 <dl class="method">
 <dt id="solidwebpush.Pusher.getUrlB64PrivateKey">
-<code class="descname">getUrlB64PrivateKey</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.getUrlB64PrivateKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.getUrlB64PrivateKey" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getUrlB64PrivateKey</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.getUrlB64PrivateKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.getUrlB64PrivateKey" title="Permalink to this definition">¶</a></dt>
 <dd><p>(probably you won&#8217;t care about private key at all)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -217,9 +223,11 @@ and do all the required work for you.</p>
 
 <dl class="method">
 <dt id="solidwebpush.Pusher.getUrlB64PublicKey">
-<code class="descname">getUrlB64PublicKey</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.getUrlB64PublicKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.getUrlB64PublicKey" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is the string you&#8217;re going to use when subscribing your serviceWorker.
-(so long as you&#8217;re planning to decode it using a function like <code class="docutils literal"><span class="pre">urlB64ToUint8Array</span></code> from 
+<code class="descname">getUrlB64PublicKey</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.getUrlB64PublicKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.getUrlB64PublicKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the string you&#8217;re going to use when subscribing your
+serviceWorker.
+(so long as you&#8217;re planning to decode it using a function like
+<code class="docutils literal"><span class="pre">urlB64ToUint8Array</span></code> from
 <a class="reference external" href="https://developers.google.com/web/fundamentals/getting-started/codelabs/push-notifications/">https://developers.google.com/web/fundamentals/getting-started/codelabs/push-notifications/</a>)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -236,30 +244,47 @@ and do all the required work for you.</p>
 <dl class="method">
 <dt id="solidwebpush.Pusher.newSubscription">
 <code class="descname">newSubscription</code><span class="sig-paren">(</span><em>idSession</em>, <em>subscription</em>, <em>idGroup=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.newSubscription"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.newSubscription" title="Permalink to this definition">¶</a></dt>
-<dd><p>Subscribes the client by permanently storing its <code class="docutils literal"><span class="pre">subscription</span></code> and group id (<code class="docutils literal"><span class="pre">idGroup</span></code>).
-This will allow you to push notifications using the client id (<code class="docutils literal"><span class="pre">idSession</span></code>) instead of its
-<code class="docutils literal"><span class="pre">subscription</span></code> object.</p>
-<p>Groups help you organize subscribers. For instance, suppose you want to notify
-Bob by sending a notification to all of his devices. If you previously
-subscribed each one of his devices to the same group, let&#8217;s say 13, then calling
-notifyall with 13 will push notifications to all of them:</p>
+<dd><p>Subscribes the client by permanently storing its <code class="docutils literal"><span class="pre">subscription</span></code> and
+group id (<code class="docutils literal"><span class="pre">idGroup</span></code>).
+This will allow you to push notifications using the
+client id (<code class="docutils literal"><span class="pre">idSession</span></code>) instead of its <code class="docutils literal"><span class="pre">subscription</span></code> object.</p>
+<p>Groups help you organize subscribers. For instance, suppose you
+want to notify Bob by sending a notification to all of his devices.
+If you previously subscribed each one of his devices to the same group
+let&#8217;s say 13, then calling notifyall with 13 will push notifications to</p>
+<blockquote>
+<div><p>all of them:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">BobsGroup</span> <span class="o">=</span> <span class="mi">13</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="o">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span><span class="o">.</span><span class="n">newSubscription</span><span class="p">(</span><span class="n">BobsTabletSessionId</span><span class="p">,</span> <span class="n">subscription0</span><span class="p">,</span> <span class="n">BobsGroup</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span><span class="o">.</span><span class="n">newSubscription</span><span class="p">(</span>
+<span class="go">        BobsTabletSessionId,</span>
+<span class="go">        subscription0,</span>
+<span class="go">        BobsGroup</span>
+<span class="go">    )</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="o">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span><span class="o">.</span><span class="n">newSubscription</span><span class="p">(</span><span class="n">BobsLaptopSessionId</span><span class="p">,</span> <span class="n">subscription1</span><span class="p">,</span> <span class="n">BobsGroup</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span><span class="o">.</span><span class="n">newSubscription</span><span class="p">(</span>
+<span class="go">        BobsLaptopSessionId,</span>
+<span class="go">        subscription1,</span>
+<span class="go">        BobsGroup</span>
+<span class="go">    )</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="o">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span><span class="o">.</span><span class="n">newSubscription</span><span class="p">(</span><span class="n">BobsMobileSessionId</span><span class="p">,</span> <span class="n">subscription2</span><span class="p">,</span> <span class="n">BobsGroup</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span><span class="o">.</span><span class="n">newSubscription</span><span class="p">(</span>
+<span class="go">        BobsMobileSessionId,</span>
+<span class="go">        subscription2,</span>
+<span class="go">        BobsGroup</span>
+<span class="go">    )</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="o">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span><span class="o">.</span><span class="n">notifyall</span><span class="p">(</span><span class="n">BobsGroup</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span><span class="o">.</span><span class="n">notifyAll</span><span class="p">(</span><span class="n">BobsGroup</span><span class="p">)</span>
 </pre></div>
 </div>
+</div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>idSession</strong> (<em>str</em>) &#8211; The client&#8217;s identification (e.g. a cookie or other session token)</li>
+<li><strong>idSession</strong> (<em>str</em>) &#8211; The client&#8217;s identification
+(e.g. a cookie or other session token)</li>
 <li><strong>subscription</strong> (<em>str</em>) &#8211; The client&#8217;s subscription JSON object</li>
 <li><strong>idGroup</strong> (<em>int</em>) &#8211; an optional Group ID value (0 by default)</li>
 </ul>
@@ -272,18 +297,24 @@ notifyall with 13 will push notifications to all of them:</p>
 <dl class="method">
 <dt id="solidwebpush.Pusher.notify">
 <code class="descname">notify</code><span class="sig-paren">(</span><em>idSession</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.notify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.notify" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pushes a notification carrying <code class="docutils literal"><span class="pre">data</span></code> to the client associated with the <code class="docutils literal"><span class="pre">idSession</span></code>.
-<code class="docutils literal"><span class="pre">idSession</span></code> is the value passed to the <code class="docutils literal"><span class="pre">newSubscription</span></code> method when storing the client&#8217;s 
-subscription object.</p>
+<dd><p>Pushes a notification carrying <code class="docutils literal"><span class="pre">data</span></code> to the client associated with
+the <code class="docutils literal"><span class="pre">idSession</span></code>.
+<code class="docutils literal"><span class="pre">idSession</span></code> is the value passed to the <code class="docutils literal"><span class="pre">newSubscription</span></code> method
+when storing the client&#8217;s subscription object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>idSession</strong> (<em>str</em>) &#8211; The client&#8217;s identification (e.g. a cookie or other session token)</li>
+<li><strong>idSession</strong> (<em>str</em>) &#8211; The client&#8217;s identification (e.g. a cookie or other
+session token)</li>
 <li><strong>data</strong> (<em>str</em><em> or </em><em>dict</em>) &#8211; A string or a dict object to be sent.
-The dict will be automatically converted into a JSON string before being sent.
-An example of a dict object would be: <code class="docutils literal"><span class="pre">{&quot;title&quot;:</span> <span class="pre">&quot;hey</span> <span class="pre">Bob!&quot;,</span> <span class="pre">&quot;body&quot;:</span> <span class="pre">&quot;you</span> <span class="pre">rock&quot;}</span></code></li>
+The dict will be automatically converted into a JSON
+string before being sent.
+An example of a dict object would be:
+<code class="docutils literal"><span class="pre">{&quot;title&quot;:</span> <span class="pre">&quot;hey</span> <span class="pre">Bob!&quot;,</span> <span class="pre">&quot;body&quot;:</span> <span class="pre">&quot;you</span> <span class="pre">rock&quot;}</span></code></li>
+<li><strong>nonblocking</strong> (<em>bool</em>) &#8211; Whether to block the caller until this method
+finishes running or not.</li>
 </ul>
 </td>
 </tr>
@@ -294,18 +325,23 @@ An example of a dict object would be: <code class="docutils literal"><span class
 <dl class="method">
 <dt id="solidwebpush.Pusher.notifyAll">
 <code class="descname">notifyAll</code><span class="sig-paren">(</span><em>data</em>, <em>idGroup=None</em>, <em>exceptList=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.notifyAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.notifyAll" title="Permalink to this definition">¶</a></dt>
-<dd><p>When no <code class="docutils literal"><span class="pre">idGroup</span></code> is given, notify all subscribers (except for those in <code class="docutils literal"><span class="pre">exceptList</span></code>).
-Otherwise, it only notifies all members of the <code class="docutils literal"><span class="pre">idGroup</span></code> group (except for those in <code class="docutils literal"><span class="pre">exceptList</span></code>).</p>
+<dd><p>When no <code class="docutils literal"><span class="pre">idGroup</span></code> is given, notify all subscribers (except for those
+in <code class="docutils literal"><span class="pre">exceptList</span></code>). Otherwise, it only notifies all members of the
+<code class="docutils literal"><span class="pre">idGroup</span></code> group (except for those in <code class="docutils literal"><span class="pre">exceptList</span></code>).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>data</strong> (<em>str</em><em> or </em><em>dict</em>) &#8211; A string or a dict object to be sent.
-The dict will be automatically converted into a JSON string before being sent.
-An example of a dict object would be: <code class="docutils literal"><span class="pre">{&quot;title&quot;:</span> <span class="pre">&quot;hey</span> <span class="pre">Bob!&quot;,</span> <span class="pre">&quot;body&quot;:</span> <span class="pre">&quot;you</span> <span class="pre">rock&quot;}</span></code></li>
+The dict will be automatically converted into a JSON
+string before being sent.
+An example of a dict object would be:
+<code class="docutils literal"><span class="pre">{&quot;title&quot;:</span> <span class="pre">&quot;hey</span> <span class="pre">Bob!&quot;,</span> <span class="pre">&quot;body&quot;:</span> <span class="pre">&quot;you</span> <span class="pre">rock&quot;}</span></code></li>
 <li><strong>idGroup</strong> (<em>int</em>) &#8211; an optional Group ID value (0 by default)</li>
-<li><strong>exceptList</strong> (<em>list</em>) &#8211; The list of sessions ids to be excluded ([] by default).</li>
+<li><strong>exceptList</strong> (<em>list</em>) &#8211; The list of sessions ids to be excluded.</li>
+<li><strong>nonblocking</strong> (<em>bool</em>) &#8211; Whether to block the caller until this method
+finishes running or not.</li>
 </ul>
 </td>
 </tr>
@@ -316,12 +352,14 @@ An example of a dict object would be: <code class="docutils literal"><span class
 <dl class="method">
 <dt id="solidwebpush.Pusher.removeSubscription">
 <code class="descname">removeSubscription</code><span class="sig-paren">(</span><em>idSession</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.removeSubscription"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.removeSubscription" title="Permalink to this definition">¶</a></dt>
-<dd><p>Unsubscribes the client by permanently removing its <code class="docutils literal"><span class="pre">subscription</span></code> and group id.</p>
+<dd><p>Unsubscribes the client by permanently removing its <code class="docutils literal"><span class="pre">subscription</span></code>
+and group id.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idSession</strong> (<em>str</em>) &#8211; The client&#8217;s identification (e.g. a cookie or other session token)</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idSession</strong> (<em>str</em>) &#8211; The client&#8217;s identification (e.g. a cookie or other
+session token)</td>
 </tr>
 </tbody>
 </table>
@@ -329,9 +367,12 @@ An example of a dict object would be: <code class="docutils literal"><span class
 
 <dl class="method">
 <dt id="solidwebpush.Pusher.sendNotification">
-<code class="descname">sendNotification</code><span class="sig-paren">(</span><em>subscription</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.sendNotification"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.sendNotification" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sendNotification</code><span class="sig-paren">(</span><em>subscription</em>, <em>data</em>, <em>nonblocking=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.sendNotification"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.sendNotification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pushes a notification carrying <code class="docutils literal"><span class="pre">data</span></code> to
-the client associated with the <code class="docutils literal"><span class="pre">subscription</span></code>.</p>
+the client associated with the <code class="docutils literal"><span class="pre">subscription</span></code> object.
+If <code class="docutils literal"><span class="pre">nonblocking</span></code> is False, the program won&#8217;t block waiting
+for the message to be completely sent. The <code class="docutils literal"><span class="pre">wait()</span></code> method
+should be used instead. (see <code class="docutils literal"><span class="pre">wait()</span></code> for more details)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -339,8 +380,43 @@ the client associated with the <code class="docutils literal"><span class="pre">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>subscription</strong> (<em>str</em>) &#8211; the client&#8217;s subscription JSON object</li>
 <li><strong>data</strong> (<em>str</em><em> or </em><em>dict</em>) &#8211; A string or a dict object to be sent.
-The dict will be automatically converted into a JSON string before being sent.
-An example of a dict object would be: <code class="docutils literal"><span class="pre">{&quot;title&quot;:</span> <span class="pre">&quot;hey</span> <span class="pre">Bob!&quot;,</span> <span class="pre">&quot;body&quot;:</span> <span class="pre">&quot;you</span> <span class="pre">rock&quot;}</span></code></li>
+The dict will be automatically converted into a JSON
+string before being sent.
+An example of a dict object would be:
+<code class="docutils literal"><span class="pre">{&quot;title&quot;:</span> <span class="pre">&quot;hey</span> <span class="pre">Bob!&quot;,</span> <span class="pre">&quot;body&quot;:</span> <span class="pre">&quot;you</span> <span class="pre">rock&quot;}</span></code></li>
+<li><strong>nonblocking</strong> (<em>bool</em>) &#8211; Whether to block the caller until this method
+finishes running or not.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="solidwebpush.Pusher.sendNotificationToAll">
+<code class="descname">sendNotificationToAll</code><span class="sig-paren">(</span><em>subscriptions</em>, <em>data</em>, <em>nonblocking=False</em>, <em>processes=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.sendNotificationToAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.sendNotificationToAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pushes a notification carrying <code class="docutils literal"><span class="pre">data</span></code> to
+each of the clients associated with the list of <code class="docutils literal"><span class="pre">subscriptions</span></code>.
+If <code class="docutils literal"><span class="pre">nonblocking</span></code> is False, the program won&#8217;t block waiting
+for all the messages to be completely sent. The <code class="docutils literal"><span class="pre">wait()</span></code> method
+should be used instead. (see <code class="docutils literal"><span class="pre">wait()</span></code> for more details)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>subscriptions</strong> (<em>list</em>) &#8211; The list of client&#8217;s subscription JSON object</li>
+<li><strong>data</strong> (<em>str</em><em> or </em><em>dict</em>) &#8211; A string or a dict object to be sent.
+The dict will be automatically converted into a JSON
+string before being sent.
+An example of a dict object would be:
+<code class="docutils literal"><span class="pre">{&quot;title&quot;:</span> <span class="pre">&quot;hey</span> <span class="pre">Bob!&quot;,</span> <span class="pre">&quot;body&quot;:</span> <span class="pre">&quot;you</span> <span class="pre">rock&quot;}</span></code></li>
+<li><strong>processes</strong> (<em>int</em>) &#8211; The [optional] number of worker processes to use.
+If processes is not given then the number returned by
+os.cpu_count() is used.</li>
+<li><strong>nonblocking</strong> (<em>bool</em>) &#8211; Whether to block the caller until this method
+finishes running or not.</li>
 </ul>
 </td>
 </tr>
@@ -350,7 +426,7 @@ An example of a dict object would be: <code class="docutils literal"><span class
 
 <dl class="method">
 <dt id="solidwebpush.Pusher.setVerbose">
-<code class="descname">setVerbose</code><span class="sig-paren">(</span><em>s</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.setVerbose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.setVerbose" title="Permalink to this definition">¶</a></dt>
+<code class="descname">setVerbose</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.setVerbose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.setVerbose" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enables and disables the verbose mode (disabled by default).
 When verbose mode is active, some internal messages are going
 to be displayed, as well as the responses from the Message Server.</p>
@@ -362,6 +438,25 @@ to be displayed, as well as the responses from the Message Server.</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="solidwebpush.Pusher.wait">
+<code class="descname">wait</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/solidwebpush.html#Pusher.wait"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#solidwebpush.Pusher.wait" title="Permalink to this definition">¶</a></dt>
+<dd><p>Blocks the program and waits for all the notifications to be sent,
+before continuing.
+This only works if there exist a previous call to a method
+with the <code class="docutils literal"><span class="pre">nonblocking</span></code> parameter set to <code class="docutils literal"><span class="pre">False</span></code>,
+as shown in the following example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span><span class="o">.</span><span class="n">sendNotificationToAll</span><span class="p">(</span>
+<span class="go">    listOfsubscriptions,</span>
+<span class="go">    &quot;Hello World&quot;,</span>
+<span class="go">    nonblocking=False</span>
+<span class="go">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Maybe some other useful computation here</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </dd></dl>

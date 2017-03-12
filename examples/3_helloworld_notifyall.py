@@ -15,12 +15,8 @@ pusher.notifyAll("Hello World")
 #NOTE: remember you can send a dict
 #object too, it will be converted to
 #a JSON string, like for instance:
+
 #pusher.notifyAll({
 #	"title": "Hi there!",
 #	"body": "Hello World"
 #})
-
-#let's wait for the notification
-#to be sent before we exit by
-#pressing Enter
-raw_input()

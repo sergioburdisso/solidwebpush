@@ -17,8 +17,3 @@ pusher.newSubscription(session_id, subscription)
 #so that, later on, we can notify him without
 #using the subscription object, like so
 pusher.notify(session_id, "Hello World")
-
-#let's wait for the notification
-#to be sent before we exit by
-#pressing Enter
-raw_input()
