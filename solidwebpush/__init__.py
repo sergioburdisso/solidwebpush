@@ -286,7 +286,7 @@ class Pusher:
 
         headers = s.__vapid__.sign(jwtpayload)
         headers["Crypto-Key"] = "dh=%s;p256ecdsa=%s" % (encrypted["dh"], s.getUrlB64PublicKey())
-        headers["TTL"] = 43200 #seconds
+        headers["TTL"] = '43200' #seconds
         headers["Content-Type"] = "application/octet-stream"
         headers['Content-Encoding'] = 'aesgcm';
         headers['Encryption'] = 'salt=' + encrypted["salt"];
