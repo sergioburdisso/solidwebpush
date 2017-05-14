@@ -6,8 +6,14 @@ This module lets your server send Web Push Notifications to your clients.
 
 ----
 """
+from __future__ import print_function
+from sqlite3 import connect as db_connect
+from multiprocessing import Pool
+from py_vapid import Vapid
+
 import os
 import re
+import six
 import json
 import time
 import base64
@@ -15,11 +21,8 @@ import requests
 import http_ece
 import pyelliptic
 
-from sqlite3 import connect as db_connect
-from multiprocessing import Pool
-from py_vapid import Vapid
 
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 __license__ = 'MIT'
 
 
@@ -165,7 +168,7 @@ class Pusher:
 
     def __print__(self, msg):
         """Verbose print wrapper."""
-        print "[ SolidWebPush ] %s" % msg
+        print("[ SolidWebPush ] %s" % msg)
 
     def __b64rpad__(self, b64str):
         """Base64 right (=)padding."""
@@ -173,6 +176,7 @@ class Pusher:
 
     def __encrypt__(self, user_publickey, user_auth, payload):
         """Encrypt the given payload."""
+
         user_publickey = user_publickey.encode("utf8")
         raw_user_publickey = base64.urlsafe_b64decode(
             self.__b64rpad__(user_publickey)
@@ -186,22 +190,25 @@ class Pusher:
         curve = pyelliptic.ECC(curve="prime256v1")
         curve_id = base64.urlsafe_b64encode(curve.get_pubkey()[1:])
 
-        payload = payload.encode("utf8")
-
         http_ece.keys[curve_id] = curve
         http_ece.labels[curve_id] = "P-256"
 
         encrypted = http_ece.encrypt(
-            payload,
+            payload.encode('utf8'),
             keyid=curve_id,
             dh=raw_user_publickey,
             salt=salt,
-            authSecret=raw_user_auth
+            authSecret=raw_user_auth,
+            version="aesgcm"
         )
 
         return {
-            'dh': base64.urlsafe_b64encode(curve.get_pubkey()).strip(b'='),
-            'salt': base64.urlsafe_b64encode(salt).strip(b'='),
+            'dh': base64.urlsafe_b64encode(
+                curve.get_pubkey()
+            ).strip(b'=').decode("utf-8"),
+            'salt': base64.urlsafe_b64encode(
+                salt
+            ).strip(b'=').decode("utf-8"),
             'body': encrypted
         }
 
@@ -225,15 +232,15 @@ class Pusher:
 
         jwt_payload = {
             "aud": base_url,
-            "exp": int(time.time()) + 60 * 60 * 12,
+            "exp": str(int(time.time()) + 60 * 60 * 12),
             "sub": "mailto:admin@yamanouchihnos.com"
         }
 
         headers = self.__vapid__.sign(jwt_payload)
         headers["TTL"] = str(43200)
         headers["Content-Type"] = "application/octet-stream"
-        headers['Content-Encoding'] = 'aesgcm'
-        headers['Encryption'] = 'salt=' + encrypted["salt"]
+        headers['Content-Encoding'] = "aesgcm"
+        headers['Encryption'] = "salt=%s" % encrypted["salt"]
         headers["Crypto-Key"] = "dh=%s;p256ecdsa=%s" % (
             encrypted["dh"],
             self.getUrlB64PublicKey()
@@ -272,7 +279,7 @@ class Pusher:
         :returns: the raw public key
         :rtype: str
         """
-        return "\x04" + self.__vapid__.public_key.to_string()
+        return b"\x04" + self.__vapid__.public_key.to_string()
 
     def getPrivateKey(self):
         """
@@ -297,7 +304,7 @@ class Pusher:
         :returns: Base64-encoded version of the public key
         :rtype: str
         """
-        return base64.b64encode(self.getPublicKey())
+        return base64.b64encode(self.getPublicKey()).decode("utf-8")
 
     def getB64PrivateKey(self):
         """
@@ -308,7 +315,7 @@ class Pusher:
         :returns: Base64-encoded version of the private key
         :rtype: str
         """
-        return base64.b64encode(self.getPrivateKey())
+        return base64.b64encode(self.getPrivateKey()).decode("utf-8")
 
     def getUrlB64PublicKey(self):
         """
@@ -323,7 +330,9 @@ class Pusher:
         :returns: URLSafe-Base64-encoded version of the public key
         :rtype: str
         """
-        return base64.urlsafe_b64encode(self.getPublicKey()).strip("=")
+        return base64.urlsafe_b64encode(
+            self.getPublicKey()
+        ).strip(b"=").decode("utf-8")
 
     def getUrlB64PrivateKey(self):
         """
@@ -334,7 +343,9 @@ class Pusher:
         :returns: URLSafe-Base64-encoded version of the private key
         :rtype: str
         """
-        return base64.urlsafe_b64encode(self.getPrivateKey()).strip("=")
+        return base64.urlsafe_b64encode(
+            self.getPrivateKey()
+        ).strip(b"=").decode("utf-8")
 
     def sendNotification(self, subscription, data, nonblocking=False):
         """
@@ -599,7 +610,7 @@ class Pusher:
             "SELECT session_id FROM subscriptors WHERE subscription=?",
             (subscription,)
         ).fetchone()
-        return res.values()[0] if res else None
+        return list(res.values())[0] if res else None
 
     @__database__
     def getSubscription(self, session_id):
@@ -617,7 +628,7 @@ class Pusher:
             "SELECT subscription FROM subscriptors WHERE session_id=?",
             (session_id,)
         ).fetchone()
-        return res.values()[0] if res else None
+        return list(res.values())[0] if res else None
 
     @__database__
     def getGroupId(self, session_id):
@@ -634,4 +645,4 @@ class Pusher:
             "SELECT group_id FROM subscriptors WHERE session_id=?",
             (session_id,)
         ).fetchone()
-        return res.values()[0] if res else None
+        return list(res.values())[0] if res else None
