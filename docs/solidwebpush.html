@@ -381,7 +381,7 @@ session token)</td>
 <dd><p>Send the data to the Message Server.</p>
 <p>Pushes a notification carrying <code class="docutils literal"><span class="pre">data</span></code> to
 the client associated with the <code class="docutils literal"><span class="pre">subscription</span></code> object.
-If <code class="docutils literal"><span class="pre">nonblocking</span></code> is False, the program won&#8217;t block waiting
+If <code class="docutils literal"><span class="pre">nonblocking</span></code> is True, the program won&#8217;t block waiting
 for the message to be completely sent. The <code class="docutils literal"><span class="pre">wait()</span></code> method
 should be used instead. (see <code class="docutils literal"><span class="pre">wait()</span></code> for more details)</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -410,7 +410,7 @@ finishes running or not.</li>
 <dd><p>Send the data to the Message Server.</p>
 <p>Pushes a notification carrying <code class="docutils literal"><span class="pre">data</span></code> to
 each of the clients associated with the list of <code class="docutils literal"><span class="pre">subscriptions</span></code>.
-If <code class="docutils literal"><span class="pre">nonblocking</span></code> is False, the program won&#8217;t block waiting
+If <code class="docutils literal"><span class="pre">nonblocking</span></code> is True, the program won&#8217;t block waiting
 for all the messages to be completely sent. The <code class="docutils literal"><span class="pre">wait()</span></code> method
 should be used instead. (see <code class="docutils literal"><span class="pre">wait()</span></code> for more details)</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -460,12 +460,12 @@ to be displayed, as well as the responses from the Message Server.</p>
 <p>Block the program and wait for all the notifications to be sent,
 before continuing.
 This only works if there exist a previous call to a method
-with the <code class="docutils literal"><span class="pre">nonblocking</span></code> parameter set to <code class="docutils literal"><span class="pre">False</span></code>,
+with the <code class="docutils literal"><span class="pre">nonblocking</span></code> parameter set to <code class="docutils literal"><span class="pre">True</span></code>,
 as shown in the following example:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span><span class="o">.</span><span class="n">sendNotificationToAll</span><span class="p">(</span>
 <span class="go">    listOfsubscriptions,</span>
 <span class="go">    &quot;Hello World&quot;,</span>
-<span class="go">    nonblocking=False</span>
+<span class="go">    nonblocking=True</span>
 <span class="go">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Maybe some other useful computation here</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pusher</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
@@ -524,8 +524,8 @@ as shown in the following example:</p>
       &copy;2017, Sergio Burdisso.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="_sources/solidwebpush.rst.txt"

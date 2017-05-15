@@ -13,7 +13,6 @@ from py_vapid import Vapid
 
 import os
 import re
-import six
 import json
 import time
 import base64
@@ -353,7 +352,7 @@ class Pusher:
 
         Pushes a notification carrying ``data`` to
         the client associated with the ``subscription`` object.
-        If ``nonblocking`` is False, the program won't block waiting
+        If ``nonblocking`` is True, the program won't block waiting
         for the message to be completely sent. The ``wait()`` method
         should be used instead. (see ``wait()`` for more details)
 
@@ -383,7 +382,7 @@ class Pusher:
 
         Pushes a notification carrying ``data`` to
         each of the clients associated with the list of ``subscriptions``.
-        If ``nonblocking`` is False, the program won't block waiting
+        If ``nonblocking`` is True, the program won't block waiting
         for all the messages to be completely sent. The ``wait()`` method
         should be used instead. (see ``wait()`` for more details)
 
@@ -426,13 +425,13 @@ class Pusher:
         Block the program and wait for all the notifications to be sent,
         before continuing.
         This only works if there exist a previous call to a method
-        with the ``nonblocking`` parameter set to ``False``,
+        with the ``nonblocking`` parameter set to ``True``,
         as shown in the following example:
 
         >>> pusher.sendNotificationToAll(
             listOfsubscriptions,
             "Hello World",
-            nonblocking=False
+            nonblocking=True
         )
         >>> # Maybe some other useful computation here
         >>> pusher.wait()

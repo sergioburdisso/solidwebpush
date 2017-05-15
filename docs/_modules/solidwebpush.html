@@ -50,6 +50,11 @@
 
 <span class="sd">----</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">sqlite3</span> <span class="k">import</span> <span class="n">connect</span> <span class="k">as</span> <span class="n">db_connect</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Pool</span>
+<span class="kn">from</span> <span class="nn">py_vapid</span> <span class="k">import</span> <span class="n">Vapid</span>
+
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">json</span>
@@ -59,19 +64,16 @@
 <span class="kn">import</span> <span class="nn">http_ece</span>
 <span class="kn">import</span> <span class="nn">pyelliptic</span>
 
-<span class="kn">from</span> <span class="nn">sqlite3</span> <span class="k">import</span> <span class="n">connect</span> <span class="k">as</span> <span class="n">db_connect</span>
-<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Pool</span>
-<span class="kn">from</span> <span class="nn">py_vapid</span> <span class="k">import</span> <span class="n">Vapid</span>
 
-<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;1.2.0&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;1.2.1&#39;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s1">&#39;MIT&#39;</span>
 
 
 <span class="k">def</span> <span class="nf">__doc_from__</span><span class="p">(</span><span class="n">docfunc</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A @decorator.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__wrapper__</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-        <span class="n">func</span><span class="o">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="n">docfunc</span><span class="o">.</span><span class="n">__name__</span>
-        <span class="n">func</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">docfunc</span><span class="o">.</span><span class="n">__doc__</span>
+        <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="n">docfunc</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">docfunc</span><span class="o">.</span><span class="vm">__doc__</span>
         <span class="k">return</span> <span class="n">func</span>
     <span class="k">return</span> <span class="n">__wrapper__</span>
 
@@ -113,8 +115,8 @@
 
         <span class="k">return</span> <span class="n">result</span>
 
-    <span class="n">__init_database__</span><span class="o">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__name__</span>
-    <span class="n">__init_database__</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__doc__</span>
+    <span class="n">__init_database__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="n">__init_database__</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span>
 
     <span class="k">return</span> <span class="n">__init_database__</span>
 
@@ -165,7 +167,7 @@
     <span class="n">__db__</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">__pool__</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="n">__RE_URL__</span> <span class="o">=</span> <span class="s2">r&quot;(https?://(?:[\w-]+\.)*[\w-]+(?::\d+)?)(?:/.*)?&quot;</span>
+    <span class="n">__RE_URL__</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(https?://(?:[\w-]+\.)*[\w-]+(?::\d+)?)(?:/.*)?&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="o">=</span><span class="s2">&quot;subscriptors.db&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -199,7 +201,7 @@
 
     <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Class state getter.&quot;&quot;&quot;</span>
-        <span class="n">self_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">self_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">del</span> <span class="n">self_dict</span><span class="p">[</span><span class="s1">&#39;__pool__&#39;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">self_dict</span>
 
@@ -209,14 +211,15 @@
 
     <span class="k">def</span> <span class="nf">__print__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Verbose print wrapper.&quot;&quot;&quot;</span>
-        <span class="nb">print</span> <span class="s2">&quot;[ SolidWebPush ] </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">msg</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[ SolidWebPush ] </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__b64rpad__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b64str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Base64 right (=)padding.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">b64str</span> <span class="o">+</span> <span class="n">b</span><span class="s2">&quot;====&quot;</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">b64str</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">b64str</span> <span class="o">+</span> <span class="sa">b</span><span class="s2">&quot;====&quot;</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">b64str</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__encrypt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_publickey</span><span class="p">,</span> <span class="n">user_auth</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Encrypt the given payload.&quot;&quot;&quot;</span>
+
         <span class="n">user_publickey</span> <span class="o">=</span> <span class="n">user_publickey</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span>
         <span class="n">raw_user_publickey</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64decode</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__b64rpad__</span><span class="p">(</span><span class="n">user_publickey</span><span class="p">)</span>
@@ -230,22 +233,25 @@
         <span class="n">curve</span> <span class="o">=</span> <span class="n">pyelliptic</span><span class="o">.</span><span class="n">ECC</span><span class="p">(</span><span class="n">curve</span><span class="o">=</span><span class="s2">&quot;prime256v1&quot;</span><span class="p">)</span>
         <span class="n">curve_id</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">get_pubkey</span><span class="p">()[</span><span class="mi">1</span><span class="p">:])</span>
 
-        <span class="n">payload</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span>
-
         <span class="n">http_ece</span><span class="o">.</span><span class="n">keys</span><span class="p">[</span><span class="n">curve_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">curve</span>
         <span class="n">http_ece</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">curve_id</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;P-256&quot;</span>
 
         <span class="n">encrypted</span> <span class="o">=</span> <span class="n">http_ece</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span>
-            <span class="n">payload</span><span class="p">,</span>
+            <span class="n">payload</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">),</span>
             <span class="n">keyid</span><span class="o">=</span><span class="n">curve_id</span><span class="p">,</span>
             <span class="n">dh</span><span class="o">=</span><span class="n">raw_user_publickey</span><span class="p">,</span>
             <span class="n">salt</span><span class="o">=</span><span class="n">salt</span><span class="p">,</span>
-            <span class="n">authSecret</span><span class="o">=</span><span class="n">raw_user_auth</span>
+            <span class="n">authSecret</span><span class="o">=</span><span class="n">raw_user_auth</span><span class="p">,</span>
+            <span class="n">version</span><span class="o">=</span><span class="s2">&quot;aesgcm&quot;</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s1">&#39;dh&#39;</span><span class="p">:</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">get_pubkey</span><span class="p">())</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">b</span><span class="s1">&#39;=&#39;</span><span class="p">),</span>
-            <span class="s1">&#39;salt&#39;</span><span class="p">:</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="n">salt</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">b</span><span class="s1">&#39;=&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;dh&#39;</span><span class="p">:</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span>
+                <span class="n">curve</span><span class="o">.</span><span class="n">get_pubkey</span><span class="p">()</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;=&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span>
+            <span class="s1">&#39;salt&#39;</span><span class="p">:</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span>
+                <span class="n">salt</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;=&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span>
             <span class="s1">&#39;body&#39;</span><span class="p">:</span> <span class="n">encrypted</span>
         <span class="p">}</span>
 
@@ -269,15 +275,15 @@
 
         <span class="n">jwt_payload</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;aud&quot;</span><span class="p">:</span> <span class="n">base_url</span><span class="p">,</span>
-            <span class="s2">&quot;exp&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span> <span class="o">+</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">12</span><span class="p">,</span>
+            <span class="s2">&quot;exp&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span> <span class="o">+</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">12</span><span class="p">),</span>
             <span class="s2">&quot;sub&quot;</span><span class="p">:</span> <span class="s2">&quot;mailto:admin@yamanouchihnos.com&quot;</span>
         <span class="p">}</span>
 
         <span class="n">headers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__vapid__</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">jwt_payload</span><span class="p">)</span>
         <span class="n">headers</span><span class="p">[</span><span class="s2">&quot;TTL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="mi">43200</span><span class="p">)</span>
         <span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;application/octet-stream&quot;</span>
-        <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Encoding&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;aesgcm&#39;</span>
-        <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Encryption&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;salt=&#39;</span> <span class="o">+</span> <span class="n">encrypted</span><span class="p">[</span><span class="s2">&quot;salt&quot;</span><span class="p">]</span>
+        <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Encoding&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;aesgcm&quot;</span>
+        <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Encryption&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;salt=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">encrypted</span><span class="p">[</span><span class="s2">&quot;salt&quot;</span><span class="p">]</span>
         <span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Crypto-Key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;dh=</span><span class="si">%s</span><span class="s2">;p256ecdsa=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
             <span class="n">encrypted</span><span class="p">[</span><span class="s2">&quot;dh&quot;</span><span class="p">],</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">getUrlB64PublicKey</span><span class="p">()</span>
@@ -316,7 +322,7 @@
 <span class="sd">        :returns: the raw public key</span>
 <span class="sd">        :rtype: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\x04</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__vapid__</span><span class="o">.</span><span class="n">public_key</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x04</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__vapid__</span><span class="o">.</span><span class="n">public_key</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Pusher.getPrivateKey"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.getPrivateKey">[docs]</a>    <span class="k">def</span> <span class="nf">getPrivateKey</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -341,7 +347,7 @@
 <span class="sd">        :returns: Base64-encoded version of the public key</span>
 <span class="sd">        :rtype: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getPublicKey</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getPublicKey</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Pusher.getB64PrivateKey"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.getB64PrivateKey">[docs]</a>    <span class="k">def</span> <span class="nf">getB64PrivateKey</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -352,7 +358,7 @@
 <span class="sd">        :returns: Base64-encoded version of the private key</span>
 <span class="sd">        :rtype: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getPrivateKey</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getPrivateKey</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Pusher.getUrlB64PublicKey"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.getUrlB64PublicKey">[docs]</a>    <span class="k">def</span> <span class="nf">getUrlB64PublicKey</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -367,7 +373,9 @@
 <span class="sd">        :returns: URLSafe-Base64-encoded version of the public key</span>
 <span class="sd">        :rtype: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getPublicKey</span><span class="p">())</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">getPublicKey</span><span class="p">()</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;=&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Pusher.getUrlB64PrivateKey"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.getUrlB64PrivateKey">[docs]</a>    <span class="k">def</span> <span class="nf">getUrlB64PrivateKey</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -378,7 +386,9 @@
 <span class="sd">        :returns: URLSafe-Base64-encoded version of the private key</span>
 <span class="sd">        :rtype: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getPrivateKey</span><span class="p">())</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">getPrivateKey</span><span class="p">()</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;=&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Pusher.sendNotification"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.sendNotification">[docs]</a>    <span class="k">def</span> <span class="nf">sendNotification</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subscription</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">nonblocking</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -386,7 +396,7 @@
 
 <span class="sd">        Pushes a notification carrying ``data`` to</span>
 <span class="sd">        the client associated with the ``subscription`` object.</span>
-<span class="sd">        If ``nonblocking`` is False, the program won&#39;t block waiting</span>
+<span class="sd">        If ``nonblocking`` is True, the program won&#39;t block waiting</span>
 <span class="sd">        for the message to be completely sent. The ``wait()`` method</span>
 <span class="sd">        should be used instead. (see ``wait()`` for more details)</span>
 
@@ -416,7 +426,7 @@
 
 <span class="sd">        Pushes a notification carrying ``data`` to</span>
 <span class="sd">        each of the clients associated with the list of ``subscriptions``.</span>
-<span class="sd">        If ``nonblocking`` is False, the program won&#39;t block waiting</span>
+<span class="sd">        If ``nonblocking`` is True, the program won&#39;t block waiting</span>
 <span class="sd">        for all the messages to be completely sent. The ``wait()`` method</span>
 <span class="sd">        should be used instead. (see ``wait()`` for more details)</span>
 
@@ -459,13 +469,13 @@
 <span class="sd">        Block the program and wait for all the notifications to be sent,</span>
 <span class="sd">        before continuing.</span>
 <span class="sd">        This only works if there exist a previous call to a method</span>
-<span class="sd">        with the ``nonblocking`` parameter set to ``False``,</span>
+<span class="sd">        with the ``nonblocking`` parameter set to ``True``,</span>
 <span class="sd">        as shown in the following example:</span>
 
 <span class="sd">        &gt;&gt;&gt; pusher.sendNotificationToAll(</span>
 <span class="sd">            listOfsubscriptions,</span>
 <span class="sd">            &quot;Hello World&quot;,</span>
-<span class="sd">            nonblocking=False</span>
+<span class="sd">            nonblocking=True</span>
 <span class="sd">        )</span>
 <span class="sd">        &gt;&gt;&gt; # Maybe some other useful computation here</span>
 <span class="sd">        &gt;&gt;&gt; pusher.wait()</span>
@@ -643,7 +653,7 @@
             <span class="s2">&quot;SELECT session_id FROM subscriptors WHERE subscription=?&quot;</span><span class="p">,</span>
             <span class="p">(</span><span class="n">subscription</span><span class="p">,)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">res</span> <span class="k">else</span> <span class="kc">None</span></div>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">res</span> <span class="k">else</span> <span class="kc">None</span></div>
 
     <span class="nd">@__database__</span>
 <div class="viewcode-block" id="Pusher.getSubscription"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.getSubscription">[docs]</a>    <span class="k">def</span> <span class="nf">getSubscription</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_id</span><span class="p">):</span>
@@ -661,7 +671,7 @@
             <span class="s2">&quot;SELECT subscription FROM subscriptors WHERE session_id=?&quot;</span><span class="p">,</span>
             <span class="p">(</span><span class="n">session_id</span><span class="p">,)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">res</span> <span class="k">else</span> <span class="kc">None</span></div>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">res</span> <span class="k">else</span> <span class="kc">None</span></div>
 
     <span class="nd">@__database__</span>
 <div class="viewcode-block" id="Pusher.getGroupId"><a class="viewcode-back" href="../solidwebpush.html#solidwebpush.Pusher.getGroupId">[docs]</a>    <span class="k">def</span> <span class="nf">getGroupId</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_id</span><span class="p">):</span>
@@ -678,7 +688,7 @@
             <span class="s2">&quot;SELECT group_id FROM subscriptors WHERE session_id=?&quot;</span><span class="p">,</span>
             <span class="p">(</span><span class="n">session_id</span><span class="p">,)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">res</span> <span class="k">else</span> <span class="kc">None</span></div></div>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">res</span> <span class="k">else</span> <span class="kc">None</span></div></div>
 </pre></div>
 
           </div>
@@ -712,8 +722,8 @@
       &copy;2017, Sergio Burdisso.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>
 
