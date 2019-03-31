@@ -21,7 +21,7 @@ import http_ece
 import pyelliptic
 
 
-__version__ = '1.2.1'
+__version__ = '1.2.2'
 __license__ = 'MIT'
 
 
@@ -159,6 +159,8 @@ class Pusher:
         """Class state getter."""
         self_dict = self.__dict__.copy()
         del self_dict['__pool__']
+        del self_dict['__db_conn__']
+        del self_dict['__db__']
         return self_dict
 
     def __call__(self, subscription, data):
