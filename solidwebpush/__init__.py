@@ -21,7 +21,7 @@ import http_ece
 import pyelliptic
 
 
-__version__ = '1.2.2'
+__version__ = '1.2.3'
 __license__ = 'MIT'
 
 
@@ -75,6 +75,29 @@ def __database__(func):
     __init_database__.__doc__ = func.__doc__
 
     return __init_database__
+
+
+def __is_valid_json__(jstr):
+    try:
+        json.loads(jstr)
+        return True
+    except:
+        return False
+
+
+class SesionIDError(Exception):
+    """ exception to be thrown when no proper session_id is used """
+    def __init__(self, message):
+        Exception.__init__(self, message)
+
+
+class SubscriptionError(Exception):
+    """ exception to be thrown when no proper subscription is used """
+    def __init__(self, msg=''):
+        Exception.__init__(
+            self,
+            "subscription must be a valid JSON str, bytes or bytearray."
+        )
 
 
 class Pusher:
@@ -158,9 +181,12 @@ class Pusher:
     def __getstate__(self):
         """Class state getter."""
         self_dict = self.__dict__.copy()
-        del self_dict['__pool__']
-        del self_dict['__db_conn__']
-        del self_dict['__db__']
+        try:
+            del self_dict['__pool__']
+            del self_dict['__db_conn__']
+            del self_dict['__db__']
+        except KeyError:
+            pass
         return self_dict
 
     def __call__(self, subscription, data):
@@ -215,7 +241,10 @@ class Pusher:
 
     def __send__(self, subscription, data):
         """Encrypt and send the data to the Message Server."""
-        subscription = json.loads(subscription)
+        if __is_valid_json__(subscription):
+            subscription = json.loads(subscription)
+        else:
+            raise SubscriptionError()
 
         if type(data) == dict:
             data = json.dumps(data)
@@ -234,7 +263,7 @@ class Pusher:
         jwt_payload = {
             "aud": base_url,
             "exp": str(int(time.time()) + 60 * 60 * 12),
-            "sub": "mailto:admin@yamanouchihnos.com"
+            "sub": "mailto:admin@mail.com"
         }
 
         headers = self.__vapid__.sign(jwt_payload)
@@ -489,6 +518,11 @@ class Pusher:
         :param group_id: an optional Group ID value (0 by default)
         :type group_id: int
         """
+        if not __is_valid_json__(subscription):
+            raise SubscriptionError()
+        if not session_id and session_id != 0:
+            raise SesionIDError("session_id cannot be empty")
+
         if not self.getSubscription(session_id):
             old_session_id = self.getIdSession(subscription)
             if old_session_id:
@@ -549,11 +583,17 @@ class Pusher:
                             finishes running or not.
         :type nonblocking: bool
         """
-        self.sendNotification(
-            self.getSubscription(session_id),
-            data,
-            nonblocking=nonblocking
-        )
+        if self.getSubscription(session_id):
+            self.sendNotification(
+                self.getSubscription(session_id),
+                data,
+                nonblocking=nonblocking
+            )
+        else:
+            raise SesionIDError(
+                "the given session_id '%s' does not exist "
+                "(it has not been subscribed yet)." % session_id
+            )
 
     @__database__
     def notifyAll(self, data, group_id=None, exceptions=[], nonblocking=False):
