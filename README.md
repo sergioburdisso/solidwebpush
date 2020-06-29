@@ -12,7 +12,7 @@ only a bare Python script listening on a port for HTTP requests).
 ### 1.1 Using pip
 
 ````
-sudo pip install solidwebpush
+pip install solidwebpush
 ````
 
 ### 1.2. Manual installation (recomended for Raspberry Pi)
