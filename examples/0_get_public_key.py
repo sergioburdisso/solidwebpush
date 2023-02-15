@@ -11,7 +11,7 @@ pusher = Pusher()
 
 #1) This one, if you will decode it using a function
 #   like the "urlB64ToUint8Array" from 
-#   https://developers.google.com/web/fundamentals/getting-started/codelabs/push-notifications/
+#   https://codelabs.developers.google.com/codelabs/push-notifications#4
 print "Base64-Urlsafe Public Key:"
 print pusher.getUrlB64PublicKey()
 
