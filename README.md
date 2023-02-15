@@ -44,9 +44,9 @@ And that's it, you're ready to go, buddy! :D
 ---
 ## 3. "Hello World" Example
 
-In order for us to be able to send a "Hello World" notification from our server to our client devices, we should have the client-side all set up, and that's why first we need to do [this Google codelab](https://developers.google.com/web/fundamentals/getting-started/codelabs/push-notifications/) before we move forward _(Note: if you're already familiar with Web Push Notifications, you could just skip this part; otherwise,  don't have to worry! it shouldn't take you too much time to get it done, trust me :D )_.
+In order for us to be able to send a "Hello World" notification from our server to our client devices, we should have the client-side all set up, and that's why first we need to do [this Google codelab](https://codelabs.developers.google.com/codelabs/push-notifications) before we move forward _(Note: if you're already familiar with Web Push Notifications, you could just skip this part; otherwise,  don't have to worry! it shouldn't take you too much time to get it done, trust me :D )_.
 
-Assuming you have finished the [codelab](https://developers.google.com/web/fundamentals/getting-started/codelabs/push-notifications/), the first thing we need to do is to **generate** our own **server public key** so we can subscribe our serviceWorker(_sw.js_) in the client devices. But don't worry, _solidwebpush_ automatically does this for us when we create a `Pusher` object, which is the one we'll use later to notify our clients:
+Assuming you have finished the [codelab](https://codelabs.developers.google.com/codelabs/push-notifications), the first thing we need to do is to **generate** our own **server public key** so we can subscribe our serviceWorker(_sw.js_) in the client devices. But don't worry, _solidwebpush_ automatically does this for us when we create a `Pusher` object, which is the one we'll use later to notify our clients:
 
 ````python
 from solidwebpush import Pusher
