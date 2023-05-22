@@ -61,6 +61,6 @@ setup(
         'py-vapid==0.7.1',
         'http_ece==0.7.0',
         'pyelliptic==1.5.7',
-        'requests==2.20.0'
+        'requests==2.31.0'
     ]
 )
